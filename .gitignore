@@ -1,0 +1,15 @@
+/Temp
+/Library
+/Obj
+/Build
+/Builds
+/Art
+/Omnom-csharp.v12.suo
+
+*.csproj
+*.unityproj
+*.sln
+*.user
+*.userprefs
+*.DS_store
+
