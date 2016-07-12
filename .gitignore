@@ -5,6 +5,7 @@
 /Builds
 /Art
 /Omnom-csharp.v12.suo
+/_ReSharper*
 
 *.csproj
 *.unityproj
@@ -12,4 +13,4 @@
 *.user
 *.userprefs
 *.DS_store
-
+*.suo
