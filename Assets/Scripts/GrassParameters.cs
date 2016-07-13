@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BO.Rendering.Utilities;
+using UnityEngine;
 using System.Collections;
 
 namespace Grass
@@ -28,6 +29,8 @@ namespace Grass
         [SerializeField]
         private float _perlinCoordinateScale = 8f;
 
+        private OpenSimplexNoise _noise;
+
         [ContextMenu("Generate seed")]
         public void GenerateSeed()
         {
@@ -36,27 +39,14 @@ namespace Grass
 
         public float GetScale(Vector3 worldPosition)
         {
-            Random.seed = _seed;
-
-            var perlinOffset = Random.insideUnitCircle;
-            perlinOffset.x += worldPosition.x;
-            perlinOffset.y += worldPosition.z;
-
-            var perlinValue = Mathf.PerlinNoise(perlinOffset.x * 2, perlinOffset.y * 2);
-
-            return Mathf.Lerp(_minGrassSize, _maxGrassSize, perlinValue);
+            return Mathf.Lerp(_minGrassSize, _maxGrassSize, GetNoiseValueAtPoint(worldPosition));
         }
 
         public Vector3 GetOffset(Vector3 worldPosition)
         {
             Random.seed = _seed;
 
-            var perlinOffset = Random.insideUnitCircle;
-            perlinOffset.x += worldPosition.x;
-            perlinOffset.y += worldPosition.z;
-
-            var perlinValue = Mathf.PerlinNoise(perlinOffset.x * 16, perlinOffset.y * 16);
-            var offset = Mathf.Lerp(-_maxOffset, _maxOffset, perlinValue);
+            var offset = Mathf.Lerp(-_maxOffset, _maxOffset, GetNoiseValueAtPoint(worldPosition));
 
             var unitCircleOffsetDirection = Random.insideUnitCircle.normalized;
             var result = new Vector3(unitCircleOffsetDirection.x, 0, unitCircleOffsetDirection.y);
@@ -77,7 +67,7 @@ namespace Grass
             var scale = GetScale(worldPosition);
 
             worldPosition.y = Terrain.activeTerrain.SampleHeight(worldPosition) + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * scale;
-            instance.transform.position = worldPosition;
+            instance.transform.position = worldPosition + GetOffset(worldPosition);
 
             instance.transform.localScale = Vector3.one * scale;
 
@@ -86,8 +76,10 @@ namespace Grass
 
         private float GetNoiseValueAtPoint(Vector3 worldPosition)
         {
-            var result = Mathf.PerlinNoise(worldPosition.x * _perlinCoordinateScale, worldPosition.z * _perlinCoordinateScale);
-            return result;
+            _noise = _noise ?? new OpenSimplexNoise(_seed);
+
+            var result = (float)_noise.Evaluate(worldPosition.x * _perlinCoordinateScale, worldPosition.z * _perlinCoordinateScale);
+            return Mathf.Pow(result, 2);
         }
     }
 }

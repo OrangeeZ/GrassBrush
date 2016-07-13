@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using System.Collections;
 
 namespace Grass
@@ -29,6 +30,47 @@ namespace Grass
             _gridSize = Mathf.RoundToInt(_size.x * _grassPerUnit);
 
             _grassGrid = new GameObject[_gridSize * _gridSize];
+        }
+
+        [ContextMenu("Toggle grass visibility")]
+        private void ToggleGrassVisibility()
+        {
+            for (var i = 0; i < _grassGrid.Length; i++)
+            {
+                if (_grassGrid[i] == null)
+                {
+                    continue;
+                }
+
+                _grassGrid[i].SetActive(!_grassGrid[i].activeSelf);
+            }
+        }
+
+        [ContextMenu("Batch grass in single mesh")]
+        private void BatchGrassInSingleMesh()
+        {
+            DestroyImmediate(GetComponent<MeshFilter>().sharedMesh);
+
+            var combineInstances = new List<CombineInstance>(capacity: _grassGrid.Length);
+            for (var i = 0; i < _grassGrid.Length; i++)
+            {
+                if (_grassGrid[i] == null)
+                {
+                    continue;
+                }
+
+                var mesh = _grassGrid[i].GetComponent<MeshFilter>().sharedMesh;
+                var instance = new CombineInstance {mesh = mesh, transform = _grassGrid[i].transform.localToWorldMatrix};
+
+                combineInstances.Add(instance);
+                _grassGrid[i].SetActive(false);
+                //DestroyImmediate(_grassGrid[i]);
+            }
+
+            var batchedMesh = new Mesh();
+            batchedMesh.CombineMeshes(combineInstances.ToArray(), mergeSubMeshes: true, useMatrices: true);
+
+            GetComponent<MeshFilter>().sharedMesh = batchedMesh;
         }
 
         public void DrawBrush(Vector3 worldPosition, float radius, GrassBrush brush, GrassParameters parameters)

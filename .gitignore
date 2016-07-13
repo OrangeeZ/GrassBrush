@@ -6,6 +6,7 @@
 /Art
 /Omnom-csharp.v12.suo
 /_ReSharper*
+/.idea*
 
 *.csproj
 *.unityproj
