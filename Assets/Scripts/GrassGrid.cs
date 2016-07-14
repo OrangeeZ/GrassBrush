@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using BO.Utilities;
 using UnityEngine;
 using System.Collections;
 
@@ -7,19 +9,31 @@ namespace Grass
     [ExecuteInEditMode]
     public class GrassGrid : MonoBehaviour
     {
+        public WorldSpaceGridTileSet<GameObject> TileSet { get; private set; }
+        public WorldSpaceGrid<GameObject> Grid { get; private set; }
+
         [SerializeField]
         private Vector3 _size;
 
         [SerializeField]
         private int _grassPerUnit = 4;
 
-        private GameObject[] _grassGrid;
+        //private GameObject[] _grassGrid;
 
         private int _gridSize;
 
         void OnEnable()
         {
             UpdateSettings();
+        }
+
+        void OnDisable()
+        {
+            var gridItems = Grid.GetItemsRaw();
+            for (var i = 0; i < gridItems.Length; i++)
+            {
+                DestroyImmediate(gridItems[i]);
+            }
         }
 
         [ContextMenu("Update settings")]
@@ -29,20 +43,66 @@ namespace Grass
             _size = terrain.terrainData.size;
             _gridSize = Mathf.RoundToInt(_size.x * _grassPerUnit);
 
-            _grassGrid = new GameObject[_gridSize * _gridSize];
+            Grid = new WorldSpaceGrid<GameObject>(_gridSize, _gridSize, _size);
+            TileSet = new WorldSpaceGridTileSet<GameObject>(Grid, 32);
         }
 
         [ContextMenu("Toggle grass visibility")]
         private void ToggleGrassVisibility()
         {
-            for (var i = 0; i < _grassGrid.Length; i++)
+            //for (var i = 0; i < _grassGrid.Length; i++)
+            //{
+            //    if (_grassGrid[i] == null)
+            //    {
+            //        continue;
+            //    }
+
+            //    _grassGrid[i].SetActive(!_grassGrid[i].activeSelf);
+            //}
+        }
+
+        [ContextMenu("Perform tiled batching")]
+        private void PerformTiledBatching()
+        {
+            for (var i = 0; i < TileSet.TileCount; i++)
             {
-                if (_grassGrid[i] == null)
+                var combineInstances = new List<CombineInstance>(capacity: TileSet.ItemsPerTile); 
+                
+                TileSet.ForEachInPatch(i, (items, x, z, index) =>
+                                              {
+                                                  var item = items[index];
+                                                  
+                                                  if (item == null)
+                                                  {
+                                                      return;
+                                                  } 
+
+                                                  var mesh = items[index].GetComponent<MeshFilter>().sharedMesh;
+                                                  var instance = new CombineInstance { mesh = mesh, transform = items[index].transform.localToWorldMatrix };
+
+                                                  combineInstances.Add(instance);
+                                                  items[index].SetActive(false);
+                                              });
+
+                if (combineInstances.Count < 1)
                 {
                     continue;
                 }
 
-                _grassGrid[i].SetActive(!_grassGrid[i].activeSelf);
+                var batchedMesh = new Mesh();
+                batchedMesh.CombineMeshes(combineInstances.ToArray(), mergeSubMeshes: true, useMatrices: true);
+
+                var tileIndex = i + 1;
+
+                if (transform.childCount < tileIndex)
+                {
+                    var tile = new GameObject("Tile" + tileIndex);
+                    tile.AddComponent<MeshFilter>().sharedMesh = batchedMesh;
+                    tile.AddComponent<MeshRenderer>();
+                }else
+                {
+                    transform.GetChild(i).gameObject.GetComponent<MeshFilter>().sharedMesh = batchedMesh;
+                }
             }
         }
 
@@ -51,20 +111,21 @@ namespace Grass
         {
             DestroyImmediate(GetComponent<MeshFilter>().sharedMesh);
 
-            var combineInstances = new List<CombineInstance>(capacity: _grassGrid.Length);
-            for (var i = 0; i < _grassGrid.Length; i++)
+            var gridItems = Grid.GetItemsRaw();
+
+            var combineInstances = new List<CombineInstance>(capacity: gridItems.Length);
+            for (var i = 0; i < gridItems.Length; i++)
             {
-                if (_grassGrid[i] == null)
+                if (gridItems[i] == null)
                 {
                     continue;
                 }
 
-                var mesh = _grassGrid[i].GetComponent<MeshFilter>().sharedMesh;
-                var instance = new CombineInstance {mesh = mesh, transform = _grassGrid[i].transform.localToWorldMatrix};
+                var mesh = gridItems[i].GetComponent<MeshFilter>().sharedMesh;
+                var instance = new CombineInstance { mesh = mesh, transform = gridItems[i].transform.localToWorldMatrix };
 
                 combineInstances.Add(instance);
-                _grassGrid[i].SetActive(false);
-                //DestroyImmediate(_grassGrid[i]);
+                gridItems[i].SetActive(false);
             }
 
             var batchedMesh = new Mesh();
@@ -75,61 +136,27 @@ namespace Grass
 
         public void DrawBrush(Vector3 worldPosition, float radius, GrassBrush brush, GrassParameters parameters)
         {
-            var quantizedRadius = WorldToGridX(radius);
-            var centerX = WorldToGridX(worldPosition.x);
-            var centerZ = WorldToGridZ(worldPosition.z);
+            Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
+                                                            {
+                                                                var grassInstance = parameters.PlaceGrassAtPosition(new Vector3(x, 0, z) / _grassPerUnit, brush.Density);
 
-            for (var x = -quantizedRadius; x <= quantizedRadius; x++)
-            {
-                for (var z = -quantizedRadius; z <= quantizedRadius; z++)
-                {
-                    if (new Vector2(x, z).sqrMagnitude > quantizedRadius * quantizedRadius)
-                    {
-                        continue;
-                    }
+                                                                if (grassInstance == null)
+                                                                {
+                                                                    return;
+                                                                }
 
-                    var gridPositionX = x + centerX;
-                    var gridPositionZ = z + centerZ;
+                                                                DestroyImmediate(items[index]);
 
-                    var gridIndex = gridPositionZ * _gridSize + gridPositionX;
+                                                                items[index] = grassInstance;
 
-                    var grassInstance = parameters.PlaceGrassAtPosition(new Vector3(gridPositionX, 0, gridPositionZ) / _grassPerUnit, brush.Density);
-                    
-                    if (grassInstance == null)
-                    {
-                        continue;
-                    }
-
-                    DestroyImmediate(_grassGrid[gridIndex]);
-
-                    _grassGrid[gridIndex] = grassInstance;
-                }
-            }
+                                                                var tileId = TileSet.GetTileIdAtGridPosition(x, z);
+                                                                TileSet.SetTileDirty(tileId, true);
+                                                            });
         }
 
         public void Erase(Vector3 worldPosition, float radius)
         {
-            var quantizedRadius = WorldToGridX(radius);
-            var centerX = WorldToGridX(worldPosition.x);
-            var centerZ = WorldToGridZ(worldPosition.z);
-
-            for (var x = -quantizedRadius; x <= quantizedRadius; x++)
-            {
-                for (var z = -quantizedRadius; z <= quantizedRadius; z++)
-                {
-                    if (new Vector2(x, z).sqrMagnitude > quantizedRadius * quantizedRadius)
-                    {
-                        continue;
-                    }
-
-                    var gridPositionX = x + centerX;
-                    var gridPositionZ = z + centerZ;
-
-                    var gridIndex = gridPositionZ * _gridSize + gridPositionX;
-
-                    DestroyImmediate(_grassGrid[gridIndex]);
-                }
-            }
+            Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) => DestroyImmediate(items[index]));
         }
 
         private int WorldToGridX(float worldX)

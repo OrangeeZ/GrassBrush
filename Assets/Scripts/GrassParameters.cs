@@ -1,4 +1,5 @@
-﻿using BO.Rendering.Utilities;
+﻿using System.Collections.Generic;
+using BO.Rendering.Utilities;
 using UnityEngine;
 using System.Collections;
 
@@ -30,6 +31,8 @@ namespace Grass
         private float _perlinCoordinateScale = 8f;
 
         private OpenSimplexNoise _noise;
+
+        private List<Object> _usedObjects = new List<Object>();
 
         [ContextMenu("Generate seed")]
         public void GenerateSeed()
@@ -67,11 +70,24 @@ namespace Grass
             var scale = GetScale(worldPosition);
 
             worldPosition.y = Terrain.activeTerrain.SampleHeight(worldPosition) + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * scale;
-            instance.transform.position = worldPosition + GetOffset(worldPosition);
 
+            instance.transform.position = worldPosition + GetOffset(worldPosition);
             instance.transform.localScale = Vector3.one * scale;
+            instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.DontSaveInEditor;
 
             return instance;
+        }
+
+        private byte AddPrefab(GameObject prefab)
+        {
+            var result = _usedObjects.IndexOf(prefab);
+            if (result == -1)
+            {
+                result = _usedObjects.Count;
+                _usedObjects.Add(prefab);
+            }
+
+            return (byte)result;
         }
 
         private float GetNoiseValueAtPoint(Vector3 worldPosition)
