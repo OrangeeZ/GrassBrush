@@ -11,23 +11,26 @@ namespace BO.Utilities
 
         private bool[] _dirtyFlags;
 
+        private int _tilesX;
+        private int _tilesZ;
+
         public WorldSpaceGridTileSet(WorldSpaceGrid<T> grid, int itemsPerTile)
         {
             Grid = grid;
             ItemsPerTile = itemsPerTile;
 
-            var itemsX = Grid.ResolutionX / ItemsPerTile;
-            var itemsZ = Grid.ResolutionZ / ItemsPerTile;
-            
-            TileCount= itemsX * itemsZ;
+            _tilesX = Grid.ResolutionX / ItemsPerTile;
+            _tilesZ = Grid.ResolutionZ / ItemsPerTile;
+
+            TileCount = _tilesX * _tilesZ;
 
             _dirtyFlags = new bool[TileCount];
         }
 
         public void ForEachInPatch(int tileId, WorldSpaceGrid<T>.GridElementCallback callback)
         {
-            var z = tileId / ItemsPerTile;
-            var x = (tileId  - z * ItemsPerTile) % ItemsPerTile;
+            var z = tileId / _tilesZ;
+            var x = (tileId - z * _tilesZ) % _tilesX;
 
             Grid.ForEachInRect(x * ItemsPerTile, z * ItemsPerTile, ItemsPerTile, ItemsPerTile, callback);
         }
