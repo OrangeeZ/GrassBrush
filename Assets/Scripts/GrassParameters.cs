@@ -9,7 +9,11 @@ namespace Grass
     {
         [Header("Grass")]
         [SerializeField]
-        private GameObject _grassPrefab;
+        //private GameObject _grassPrefab;
+        private Mesh _grassMesh;
+
+        [SerializeField]
+        private Material _grassMaterial;
 
         [Header("Size")]
 
@@ -57,7 +61,7 @@ namespace Grass
             return result * offset;
         }
 
-        public GameObject PlaceGrassAtPosition(Vector3 worldPosition, float density)
+        public Mesh PlaceGrassAtPosition(Vector3 worldPosition, float density)
         {
             var perlinAtPoint = GetNoiseValueAtPoint(worldPosition);
 
@@ -66,16 +70,18 @@ namespace Grass
                 return null;
             }
 
-            var instance = Instantiate(_grassPrefab);
-            var scale = GetScale(worldPosition);
+            //var instance = Instantiate(_grassPrefab);
+            //var scale = GetScale(worldPosition);
 
-            worldPosition.y = Terrain.activeTerrain.SampleHeight(worldPosition) + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * scale;
+            //worldPosition.y = Terrain.activeTerrain.SampleHeight(worldPosition) + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * scale;
 
-            instance.transform.position = worldPosition + GetOffset(worldPosition);
-            instance.transform.localScale = Vector3.one * scale;
-            instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.DontSaveInEditor;
+            //instance.transform.position = worldPosition + GetOffset(worldPosition);
+            //instance.transform.localScale = Vector3.one * scale;
+            //instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.DontSaveInEditor;
 
-            return instance;
+            //return instance;
+
+            return _grassMesh;
         }
 
         private byte AddPrefab(GameObject prefab)

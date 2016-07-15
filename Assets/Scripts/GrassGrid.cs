@@ -9,16 +9,14 @@ namespace Grass
     [ExecuteInEditMode]
     public class GrassGrid : MonoBehaviour
     {
-        public WorldSpaceGridTileSet<GameObject> TileSet { get; private set; }
-        public WorldSpaceGrid<GameObject> Grid { get; private set; }
+        public WorldSpaceGridTileSet<Mesh> TileSet { get; private set; }
+        public WorldSpaceGrid<Mesh> Grid { get; private set; }
 
         [SerializeField]
         private Vector3 _size;
 
         [SerializeField]
         private int _grassPerUnit = 4;
-
-        //private GameObject[] _grassGrid;
 
         private int _gridSize;
 
@@ -29,11 +27,11 @@ namespace Grass
 
         void OnDisable()
         {
-            var gridItems = Grid.GetItemsRaw();
-            for (var i = 0; i < gridItems.Length; i++)
-            {
-                DestroyImmediate(gridItems[i]);
-            }
+            //var gridItems = Grid.GetItemsRaw();
+            //for (var i = 0; i < gridItems.Length; i++)
+            //{
+            //    DestroyImmediate(gridItems[i]);
+            //}
         }
 
         [ContextMenu("Update settings")]
@@ -43,22 +41,8 @@ namespace Grass
             _size = terrain.terrainData.size;
             _gridSize = Mathf.RoundToInt(_size.x * _grassPerUnit);
 
-            Grid = new WorldSpaceGrid<GameObject>(_gridSize, _gridSize, _size);
-            TileSet = new WorldSpaceGridTileSet<GameObject>(Grid, 32);
-        }
-
-        [ContextMenu("Toggle grass visibility")]
-        private void ToggleGrassVisibility()
-        {
-            //for (var i = 0; i < _grassGrid.Length; i++)
-            //{
-            //    if (_grassGrid[i] == null)
-            //    {
-            //        continue;
-            //    }
-
-            //    _grassGrid[i].SetActive(!_grassGrid[i].activeSelf);
-            //}
+            Grid = new WorldSpaceGrid<Mesh>(_gridSize, _gridSize, _size);
+            TileSet = new WorldSpaceGridTileSet<Mesh>(Grid, 32);
         }
 
         [ContextMenu("Perform tiled batching")]
@@ -66,72 +50,8 @@ namespace Grass
         {
             for (var i = 0; i < TileSet.TileCount; i++)
             {
-                var combineInstances = new List<CombineInstance>(capacity: TileSet.ItemsPerTile); 
-                
-                TileSet.ForEachInPatch(i, (items, x, z, index) =>
-                                              {
-                                                  var item = items[index];
-                                                  
-                                                  if (item == null)
-                                                  {
-                                                      return;
-                                                  } 
-
-                                                  var mesh = items[index].GetComponent<MeshFilter>().sharedMesh;
-                                                  var instance = new CombineInstance { mesh = mesh, transform = items[index].transform.localToWorldMatrix };
-
-                                                  combineInstances.Add(instance);
-                                                  items[index].SetActive(false);
-                                              });
-
-                if (combineInstances.Count < 1)
-                {
-                    continue;
-                }
-
-                var batchedMesh = new Mesh();
-                batchedMesh.CombineMeshes(combineInstances.ToArray(), mergeSubMeshes: true, useMatrices: true);
-
-                var tileIndex = i + 1;
-
-                if (transform.childCount < tileIndex)
-                {
-                    var tile = new GameObject("Tile" + tileIndex);
-                    tile.AddComponent<MeshFilter>().sharedMesh = batchedMesh;
-                    tile.AddComponent<MeshRenderer>();
-                }else
-                {
-                    transform.GetChild(i).gameObject.GetComponent<MeshFilter>().sharedMesh = batchedMesh;
-                }
+                GenerateTileMesh(i);
             }
-        }
-
-        [ContextMenu("Batch grass in single mesh")]
-        private void BatchGrassInSingleMesh()
-        {
-            DestroyImmediate(GetComponent<MeshFilter>().sharedMesh);
-
-            var gridItems = Grid.GetItemsRaw();
-
-            var combineInstances = new List<CombineInstance>(capacity: gridItems.Length);
-            for (var i = 0; i < gridItems.Length; i++)
-            {
-                if (gridItems[i] == null)
-                {
-                    continue;
-                }
-
-                var mesh = gridItems[i].GetComponent<MeshFilter>().sharedMesh;
-                var instance = new CombineInstance { mesh = mesh, transform = gridItems[i].transform.localToWorldMatrix };
-
-                combineInstances.Add(instance);
-                gridItems[i].SetActive(false);
-            }
-
-            var batchedMesh = new Mesh();
-            batchedMesh.CombineMeshes(combineInstances.ToArray(), mergeSubMeshes: true, useMatrices: true);
-
-            GetComponent<MeshFilter>().sharedMesh = batchedMesh;
         }
 
         public void DrawBrush(Vector3 worldPosition, float radius, GrassBrush brush, GrassParameters parameters)
@@ -145,28 +65,87 @@ namespace Grass
                                                                     return;
                                                                 }
 
-                                                                DestroyImmediate(items[index]);
-
-                                                                items[index] = grassInstance;
+                                                                items[index] = grassInstance;//.GetComponent<MeshFilter>().sharedMesh;// grassInstance;
 
                                                                 var tileId = TileSet.GetTileIdAtGridPosition(x, z);
                                                                 TileSet.SetTileDirty(tileId, true);
                                                             });
+
+            UpdateMeshes();
         }
 
         public void Erase(Vector3 worldPosition, float radius)
         {
-            Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) => DestroyImmediate(items[index]));
+            Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
+                                                            {
+                                                                items[index] = null;
+
+                                                                var tileId = TileSet.GetTileIdAtGridPosition(x, z);
+                                                                TileSet.SetTileDirty(tileId, true);
+                                                            });
+
+            UpdateMeshes();
         }
 
-        private int WorldToGridX(float worldX)
+        private void UpdateMeshes()
         {
-            return Mathf.FloorToInt(worldX / _size.x * _gridSize);
+            for (var i = 0; i < TileSet.TileCount; i++)
+            {
+                if (TileSet.GetTileDirty(i))
+                {
+                    GenerateTileMesh(i);
+
+                    TileSet.SetTileDirty(i, false);
+                }
+            }
         }
 
-        private int WorldToGridZ(float worldZ)
+        private void GenerateTileMesh(int tileId)
         {
-            return Mathf.FloorToInt(worldZ / _size.z * _gridSize);
+            var combineInstances = new List<CombineInstance>(capacity: TileSet.ItemsPerTile);
+
+            TileSet.ForEachInPatch(tileId, (items, x, z, index) =>
+            {
+                var item = items[index];
+
+                if (item == null)
+                {
+                    return;
+                }
+
+                var mesh = items[index];
+                var localToWorldMatrix = Matrix4x4.TRS(new Vector3(x, 0, z) / _grassPerUnit, Quaternion.identity, Vector3.one);
+                var instance = new CombineInstance { mesh = mesh, transform = localToWorldMatrix };
+
+                combineInstances.Add(instance);
+            });
+
+            var tileIndex = tileId + 1;
+
+            var targetMeshFilter = default(MeshFilter);
+
+            if (transform.FindChild("Tile" + tileIndex) == null)
+            {
+                var tile = new GameObject("Tile" + tileIndex);
+                targetMeshFilter = tile.AddComponent<MeshFilter>();
+                tile.AddComponent<MeshRenderer>();
+                tile.transform.SetParent(transform);
+            }
+            else
+            {
+                targetMeshFilter = transform.FindChild("Tile" + tileIndex).gameObject.GetComponent<MeshFilter>();
+            }
+
+            DestroyImmediate(targetMeshFilter.sharedMesh);
+
+            if (combineInstances.Count < 1)
+            {
+                return;
+            }
+
+            var batchedMesh = new Mesh();
+            batchedMesh.CombineMeshes(combineInstances.ToArray(), mergeSubMeshes: true, useMatrices: true);
+            targetMeshFilter.sharedMesh = batchedMesh;
         }
     }
 }
