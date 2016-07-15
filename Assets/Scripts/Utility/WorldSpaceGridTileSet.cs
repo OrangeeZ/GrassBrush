@@ -19,8 +19,8 @@ namespace BO.Utilities
             Grid = grid;
             ItemsPerTile = itemsPerTile;
 
-            _tilesX = Grid.ResolutionX / ItemsPerTile;
-            _tilesZ = Grid.ResolutionZ / ItemsPerTile;
+            _tilesX = Mathf.CeilToInt((float)Grid.ResolutionX / ItemsPerTile);
+            _tilesZ = Mathf.CeilToInt((float)Grid.ResolutionZ / ItemsPerTile);
 
             TileCount = _tilesX * _tilesZ;
 
@@ -37,19 +37,33 @@ namespace BO.Utilities
 
         public int GetTileIdAtGridPosition(int x, int z)
         {
-            var itemsZ = Grid.ResolutionZ / ItemsPerTile;
-            var result = z / ItemsPerTile * itemsZ + x / ItemsPerTile;
+            if (x >= Grid.ResolutionX || z >= Grid.ResolutionZ)
+            {
+                return -1;
+            }
+
+            var result = z / ItemsPerTile * _tilesZ + x / ItemsPerTile;
 
             return result;
         }
 
         public bool GetTileDirty(int tileId)
         {
+            if (tileId < 0 || tileId >= _dirtyFlags.Length)
+            {
+                return false;
+            }
+
             return _dirtyFlags[tileId];
         }
 
         public void SetTileDirty(int tileId, bool isDirty)
         {
+            if (tileId < 0 || tileId >= _dirtyFlags.Length)
+            {
+                return;
+            }
+
             _dirtyFlags[tileId] = isDirty;
         }
     }

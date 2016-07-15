@@ -46,6 +46,11 @@ namespace BO.Utilities
 
                     var itemIndex = gridPositionZ * ResolutionX + gridPositionX;
 
+                    if (itemIndex < 0 || itemIndex >= _items.Length)
+                    {
+                        continue;
+                    }
+
                     callback(_items, gridPositionX, gridPositionZ, itemIndex);
                 }
             }
@@ -72,6 +77,11 @@ namespace BO.Utilities
                     var gridPositionZ = z + centerZ;
 
                     var itemIndex = gridPositionZ * ResolutionX + gridPositionX;
+
+                    if (itemIndex < 0 || itemIndex >= _items.Length)
+                    {
+                        continue;
+                    }
 
                     callback(_items, gridPositionX, gridPositionZ, itemIndex);
                 }

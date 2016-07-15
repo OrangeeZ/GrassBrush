@@ -57,19 +57,19 @@ namespace Grass
         public void DrawBrush(Vector3 worldPosition, float radius, GrassBrush brush, GrassParameters parameters)
         {
             Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
-                                                            {
-                                                                var grassInstance = parameters.PlaceGrassAtPosition(new Vector3(x, 0, z) / _grassPerUnit, brush.Density);
+            {
+                var grassInstance = parameters.PlaceGrassAtPosition(new Vector3(x, 0, z) / _grassPerUnit, brush.Density);
 
-                                                                if (grassInstance == null)
-                                                                {
-                                                                    return;
-                                                                }
+                if (grassInstance == null)
+                {
+                    return;
+                }
 
-                                                                items[index] = grassInstance;//.GetComponent<MeshFilter>().sharedMesh;// grassInstance;
+                items[index] = grassInstance;//.GetComponent<MeshFilter>().sharedMesh;// grassInstance;
 
-                                                                var tileId = TileSet.GetTileIdAtGridPosition(x, z);
-                                                                TileSet.SetTileDirty(tileId, true);
-                                                            });
+                var tileId = TileSet.GetTileIdAtGridPosition(x, z);
+                TileSet.SetTileDirty(tileId, true);
+            });
 
             UpdateMeshes();
         }
@@ -77,12 +77,12 @@ namespace Grass
         public void Erase(Vector3 worldPosition, float radius)
         {
             Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
-                                                            {
-                                                                items[index] = null;
+            {
+                items[index] = null;
 
-                                                                var tileId = TileSet.GetTileIdAtGridPosition(x, z);
-                                                                TileSet.SetTileDirty(tileId, true);
-                                                            });
+                var tileId = TileSet.GetTileIdAtGridPosition(x, z);
+                TileSet.SetTileDirty(tileId, true);
+            });
 
             UpdateMeshes();
         }
