@@ -61,4 +61,33 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
         items[itemIndex] = items[itemIndex] ?? new List<int>();
         items[itemIndex].Add(_circleIndexToAdd);
     }
+
+    public void RemoveCircle(Vector3 position, float radius)
+    {
+        _intersectionPosition = position;
+        _intersectionRadius = radius;
+
+        ForEachInRadius(position, radius, OnCircleRemove);
+    }
+
+    private void OnCircleRemove(List<int>[] items, int x, int z, int itemIndex)
+    {
+        var itemList = items[itemIndex];
+        if (itemList == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < itemList.Count; i++)
+        {
+            if (IntersectCircles(Circles[itemList[i]]))
+            {
+                itemList.RemoveAt(i);
+
+                i = 0;
+            }
+        }
+
+        //itemList.RemoveAll(_ => IntersectCircles(Circles[itemList[_]]));
+    }
 }

@@ -94,6 +94,8 @@ namespace Grass
 
         public void Erase(Vector3 worldPosition, float radius)
         {
+            Grid.RemoveCircle(worldPosition, radius);
+
             //Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
             //{
             //    items[index] = null;
