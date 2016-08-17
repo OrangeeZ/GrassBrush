@@ -43,7 +43,6 @@ namespace Grass
             _circles = new List<DistributedCircleGenerator.Circle>();
 
             Grid = new WorldSpaceCircleGrid(_gridSize, _gridSize, _size);
-            Grid.Circles = _circles;
         }
 
         public bool TryAddCircle(DistributedCircleGenerator.Circle circle, float radius)
@@ -94,7 +93,7 @@ namespace Grass
 
         public void Erase(Vector3 worldPosition, float radius)
         {
-            Grid.RemoveCircle(worldPosition, radius);
+            Grid.RemoveCircle(worldPosition, radius, circle => DestroyImmediate(circle.Instance.gameObject));
 
             //Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
             //{

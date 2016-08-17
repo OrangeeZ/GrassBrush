@@ -4,22 +4,21 @@ using BO.Utilities;
 using UnityEngine;
 using System.Collections;
 
-public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
+public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerator.Circle>>
 {
     public WorldSpaceCircleGrid(int resolutionX, int resolutionZ, Vector3 worldSize) : base(resolutionX, resolutionZ, worldSize)
     {
     }
 
-    public List<DistributedCircleGenerator.Circle> Circles; 
-
-    private int _circleIndexToAdd;
+    private DistributedCircleGenerator.Circle _circleToAdd;
     private Vector3 _intersectionPosition;
     private float _intersectionRadius;
     private bool _circleIntersectionResult;
+    private Action<DistributedCircleGenerator.Circle> _circleCallback;
 
     public void AddCircle(DistributedCircleGenerator.Circle circle, float radius, int index)
     {
-        _circleIndexToAdd = index;
+        _circleToAdd = circle;
 
         ForEachInRadius(circle.Position, radius, OnTryAddCircle);
     }
@@ -36,7 +35,7 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
         return _circleIntersectionResult;
     }
 
-    private void OnCircleIntersection(List<int>[] items, int x, int z, int itemIndex)
+    private void OnCircleIntersection(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
     {
         var itemList = items[itemIndex];
 
@@ -47,7 +46,7 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
 
         for (var j = 0; j < itemList.Count && !_circleIntersectionResult; j++)
         {
-            _circleIntersectionResult = _circleIntersectionResult || IntersectCircles(Circles[itemList[j]]);
+            _circleIntersectionResult = _circleIntersectionResult || IntersectCircles(itemList[j]);
         }
     }
 
@@ -56,21 +55,22 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
         return (_intersectionPosition - b.Position).sqrMagnitude <= Mathf.Pow(_intersectionRadius + b.Radius, 2);
     }
 
-    private void OnTryAddCircle(List<int>[] items, int x, int z, int itemIndex)
+    private void OnTryAddCircle(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
     {
-        items[itemIndex] = items[itemIndex] ?? new List<int>();
-        items[itemIndex].Add(_circleIndexToAdd);
+        items[itemIndex] = items[itemIndex] ?? new List<DistributedCircleGenerator.Circle>();
+        items[itemIndex].Add(_circleToAdd);
     }
 
-    public void RemoveCircle(Vector3 position, float radius)
+    public void RemoveCircle(Vector3 position, float radius, Action<DistributedCircleGenerator.Circle> circleCallback)
     {
         _intersectionPosition = position;
         _intersectionRadius = radius;
+        _circleCallback = circleCallback;
 
         ForEachInRadius(position, radius, OnCircleRemove);
     }
 
-    private void OnCircleRemove(List<int>[] items, int x, int z, int itemIndex)
+    private void OnCircleRemove(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
     {
         var itemList = items[itemIndex];
         if (itemList == null)
@@ -80,8 +80,10 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
 
         for (var i = 0; i < itemList.Count; i++)
         {
-            if (IntersectCircles(Circles[itemList[i]]))
+            if (IntersectCircles(itemList[i]))
             {
+                _circleCallback(itemList[i]);
+
                 itemList.RemoveAt(i);
 
                 i = 0;

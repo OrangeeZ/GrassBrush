@@ -12,6 +12,7 @@ public class DistributedCircleGenerator : MonoBehaviour
     {
         public Vector3 Position;
         public float Radius;
+        public DetailPreset Instance;
     }
 
     [SerializeField]

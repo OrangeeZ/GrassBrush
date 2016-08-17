@@ -47,6 +47,8 @@ namespace Grass
                 var prefabInstance = UnityEditor.PrefabUtility.InstantiatePrefab(_prefab) as DetailPreset;
                 prefabInstance.transform.position = each.Position;
                 prefabInstance.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+
+                each.Instance = prefabInstance;
             }
 
             //_grassGrid.DrawBrush(transform.position, transform.localScale.x, this, _grassParameters);
@@ -54,7 +56,13 @@ namespace Grass
 
         public void Erase()
         {
-            _grassGrid.Erase(transform.position, transform.localScale.x);
+            _distributedCircleGenerator.transform.position = transform.position;
+
+            for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
+            {
+                var each = _distributedCircleGenerator.GetCircles()[i];
+                _grassGrid.Erase(each.Position, each.Radius);
+            }
         }
 
         void OnDrawGizmos()
