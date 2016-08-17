@@ -46,7 +46,7 @@ namespace Grass
 
                 var prefabInstance = UnityEditor.PrefabUtility.InstantiatePrefab(_prefab) as DetailPreset;
                 prefabInstance.transform.position = each.Position;
-                prefabInstance.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+                prefabInstance.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
             }
 
             //_grassGrid.DrawBrush(transform.position, transform.localScale.x, this, _grassParameters);
