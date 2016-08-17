@@ -10,19 +10,43 @@ namespace Grass
         public float Density { get { return _density; } }
 
         [SerializeField]
+        private GameObject _prefab;
+
+        [SerializeField]
         private GrassParameters _grassParameters;
 
         [SerializeField]
-        private GrassGrid _grassGrid;
+        private GrassCircleGrid _grassGrid;
 
         [SerializeField]
         [Range(0, 1)]
         private float _density = 1f;
 
+        [SerializeField]
+        private DistributedCircleGenerator _distributedCircleGenerator;
+
         [ContextMenu("Draw")]
         public void Draw()
         {
-            _grassGrid.DrawBrush(transform.position, transform.localScale.x, this, _grassParameters);
+            //_distributedCircleGenerator.Generate();
+
+            _distributedCircleGenerator.transform.position = transform.position;
+
+            for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
+            {
+                var each = _distributedCircleGenerator.GetCircles()[i];
+
+                if (!_grassGrid.TryAddCircle(each))
+                {
+                    continue;
+                }
+
+                var prefabInstance = UnityEditor.PrefabUtility.InstantiatePrefab(_prefab) as GameObject;
+                prefabInstance.transform.position = each.Position;
+                prefabInstance.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+            }
+
+            //_grassGrid.DrawBrush(transform.position, transform.localScale.x, this, _grassParameters);
         }
 
         public void Erase()
