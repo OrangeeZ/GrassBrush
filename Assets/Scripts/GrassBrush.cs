@@ -10,8 +10,11 @@ namespace Grass
         public float Density { get { return _density; } }
 
         [SerializeField]
-        private GameObject _prefab;
+        private DetailPreset _prefab;
 
+        [SerializeField]
+        private float _spacing;
+        
         [SerializeField]
         private GrassParameters _grassParameters;
 
@@ -36,12 +39,12 @@ namespace Grass
             {
                 var each = _distributedCircleGenerator.GetCircles()[i];
 
-                if (!_grassGrid.TryAddCircle(each))
+                if (!_grassGrid.TryAddCircle(each, _prefab.Radius + _spacing))
                 {
                     continue;
                 }
 
-                var prefabInstance = UnityEditor.PrefabUtility.InstantiatePrefab(_prefab) as GameObject;
+                var prefabInstance = UnityEditor.PrefabUtility.InstantiatePrefab(_prefab) as DetailPreset;
                 prefabInstance.transform.position = each.Position;
                 prefabInstance.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
             }

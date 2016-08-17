@@ -13,23 +13,25 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
     public List<DistributedCircleGenerator.Circle> Circles; 
 
     private int _circleIndexToAdd;
-    private DistributedCircleGenerator.Circle _circleToIntersect;
+    private Vector3 _intersectionPosition;
+    private float _intersectionRadius;
     private bool _circleIntersectionResult;
 
-    public void AddCircle(DistributedCircleGenerator.Circle circle, int index)
+    public void AddCircle(DistributedCircleGenerator.Circle circle, float radius, int index)
     {
         _circleIndexToAdd = index;
 
-        ForEachInRadius(circle.Position, circle.Radius, OnTryAddCircle);
+        ForEachInRadius(circle.Position, radius, OnTryAddCircle);
     }
 
-    public bool Intersects(DistributedCircleGenerator.Circle circle)
+    public bool Intersects(DistributedCircleGenerator.Circle circle, float radius)
     {
         _circleIntersectionResult = false;
 
-        _circleToIntersect = circle;
+        _intersectionPosition = circle.Position;
+        _intersectionRadius = radius;
 
-        ForEachInRadius(circle.Position, circle.Radius, OnCircleIntersection);
+        ForEachInRadius(circle.Position, radius, OnCircleIntersection);
 
         return _circleIntersectionResult;
     }
@@ -45,13 +47,13 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<int>>
 
         for (var j = 0; j < itemList.Count && !_circleIntersectionResult; j++)
         {
-            _circleIntersectionResult = _circleIntersectionResult || IntersectCircles(_circleToIntersect, Circles[itemList[j]]);
+            _circleIntersectionResult = _circleIntersectionResult || IntersectCircles(Circles[itemList[j]]);
         }
     }
 
-    private bool IntersectCircles(DistributedCircleGenerator.Circle a, DistributedCircleGenerator.Circle b)
+    private bool IntersectCircles(DistributedCircleGenerator.Circle b)
     {
-        return (a.Position - b.Position).sqrMagnitude <= Mathf.Pow(a.Radius + b.Radius, 2);
+        return (_intersectionPosition - b.Position).sqrMagnitude <= Mathf.Pow(_intersectionRadius + b.Radius, 2);
     }
 
     private void OnTryAddCircle(List<int>[] items, int x, int z, int itemIndex)

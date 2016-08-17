@@ -46,14 +46,14 @@ namespace Grass
             Grid.Circles = _circles;
         }
 
-        public bool TryAddCircle(DistributedCircleGenerator.Circle circle)
+        public bool TryAddCircle(DistributedCircleGenerator.Circle circle, float radius)
         {
-            if (Grid.Intersects(circle))
+            if (Grid.Intersects(circle, radius))
             {
                 return false;
             }
 
-            Grid.AddCircle(circle, _circles.Count);
+            Grid.AddCircle(circle, radius, _circles.Count);
             _circles.Add(circle);
 
             return true;
