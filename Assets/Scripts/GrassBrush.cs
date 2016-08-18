@@ -14,7 +14,7 @@ namespace Grass
 
         [SerializeField]
         private float _spacing;
-        
+
         [SerializeField]
         private GrassParameters _grassParameters;
 
@@ -31,9 +31,10 @@ namespace Grass
         [ContextMenu("Draw")]
         public void Draw()
         {
-            //_distributedCircleGenerator.Generate();
-
             _distributedCircleGenerator.transform.position = transform.position;
+
+            _distributedCircleGenerator.SetRadius(transform.localScale.x);
+            _distributedCircleGenerator.Generate(_density);
 
             for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
             {
@@ -57,6 +58,9 @@ namespace Grass
         public void Erase()
         {
             _distributedCircleGenerator.transform.position = transform.position;
+
+            _distributedCircleGenerator.SetRadius(transform.localScale.x);
+            _distributedCircleGenerator.Generate(_density);
 
             for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
             {

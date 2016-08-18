@@ -16,13 +16,13 @@ public class DistributedCircleGenerator : MonoBehaviour
     }
 
     [SerializeField]
-    private int _pointCount = 20;
+    private int _pointsPerUnit = 5;
 
     [SerializeField]
     private float _radius = 5f;
 
     [SerializeField]
-    private float _minDistanceBetweenPoints = 0.5f;
+    private float _baseMinRadius = 0.5f;
 
     private List<Circle> _circles = new List<Circle>();
 
@@ -31,25 +31,33 @@ public class DistributedCircleGenerator : MonoBehaviour
         return _circles;
     }
 
+    public void SetRadius(float newRadius)
+    {
+        _radius = newRadius;
+    }
+
     [ContextMenu("Generate seed")]
-    public void Generate()
+    public void Generate(float density)
     {
         _circles.Clear();
 
-        for (var i = 0; i < _pointCount; i++)
+        var area = Mathf.Pow(_radius, 2) * Mathf.PI;
+        var pointCount = area * _pointsPerUnit * density;
+
+        for (var i = 0; i < pointCount; i++)
         {
             var point = Random.insideUnitCircle * _radius;
             var worldPoint = new Vector3(point.x, 0, point.y);
 
-            _circles.Add(new Circle {Position = worldPoint + transform.position, Radius = float.NaN});
+            _circles.Add(new Circle { Position = worldPoint + transform.position, Radius = float.NaN });
         }
 
-        CalculateMinimumRadius();
-        RemoveCirclesWithinMinDistance();
-        CalculateMinimumRadius();
+        CalculateMinimumRadii();
+        RemoveCirclesWithinMinDistance(_baseMinRadius * (1 - density));
+        //CalculateMinimumRadii();
     }
 
-    private void CalculateMinimumRadius()
+    private void CalculateMinimumRadii()
     {
         for (var i = 0; i < _circles.Count; i++)
         {
@@ -78,19 +86,19 @@ public class DistributedCircleGenerator : MonoBehaviour
         }
     }
 
-    private void RemoveCirclesWithinMinDistance()
+    private void RemoveCirclesWithinMinDistance(float minRadius)
     {
-        _circles.RemoveAll(_ => _.Radius < _minDistanceBetweenPoints);
+        _circles.RemoveAll(_ => _.Radius < minRadius);
     }
 
     void Update()
     {
-        if (transform.hasChanged)
-        {
-            Generate();
+        //if (transform.hasChanged)
+        //{
+        //    Generate(densi);
 
-            transform.hasChanged = false;
-        }
+        //    transform.hasChanged = false;
+        //}
     }
 
     void OnDrawGizmosSelected()
