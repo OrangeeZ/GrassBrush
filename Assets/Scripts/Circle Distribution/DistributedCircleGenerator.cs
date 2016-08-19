@@ -11,7 +11,14 @@ public class DistributedCircleGenerator : MonoBehaviour
     public class Circle
     {
         public Vector3 Position;
+        public float AngleY;
+        public float Scale;
+
         public float Radius;
+
+        public DetailPreset Prefab;
+
+        [NonSerialized]
         public DetailPreset Instance;
     }
 

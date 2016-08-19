@@ -68,6 +68,8 @@ namespace Grass
             Grid.AddCircle(circle);
             _circles.Add(circle);
 
+            SetupInstance(circle);
+
             return true;
         }
 
@@ -147,18 +149,32 @@ namespace Grass
 
             _detailObjectsData = UnityEditor.AssetDatabase.LoadAssetAtPath<DetailObjectsData>(path);
 
-            _circles = _detailObjectsData.GetDetailObjects().Select(_ => new DistributedCircleGenerator.Circle
-             {
-                 Position = _.Position,
-                 Radius = _.Radius,
-                 Instance = UnityEditor.PrefabUtility.InstantiatePrefab(_.Instance) as DetailPreset
-             }).ToList();
+            _circles = _detailObjectsData.GetDetailObjects().ToList();
 
             for (var i = 0; i < _circles.Count; i++)
             {
                 Grid.AddCircle(_circles[i]);
-                _circles[i].Instance.transform.position = _circles[i].Position;
+
+                SetupInstance(_circles[i]);
             }
+        }
+
+        private void SetupInstance(DistributedCircleGenerator.Circle target)
+        {
+            target.Instance = UnityEditor.PrefabUtility.InstantiatePrefab(target.Prefab) as DetailPreset;
+
+            var height = Terrain.activeTerrain.SampleHeight(target.Position);
+            target.Position.y = height + target.Instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
+
+            target.AngleY = 0;
+
+            target.Instance.transform.position = target.Position;
+
+            var normal = Terrain.activeTerrain.terrainData.GetInterpolatedNormal(target.Position.x / Terrain.activeTerrain.terrainData.size.x, target.Position.z / Terrain.activeTerrain.terrainData.size.z);
+            target.Instance.transform.up = normal;
+
+            target.Instance.transform.localScale = Vector3.one * target.Scale;
+            target.Instance.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
         }
 
         void OnDrawGizmos()
