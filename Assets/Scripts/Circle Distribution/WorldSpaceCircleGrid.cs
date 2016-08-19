@@ -16,9 +16,10 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerat
     private bool _circleIntersectionResult;
     private Action<DistributedCircleGenerator.Circle> _circleCallback;
 
-    public void AddCircle(DistributedCircleGenerator.Circle circle, float radius, int index)
+    public void AddCircle(DistributedCircleGenerator.Circle circle, float radius)
     {
         _circleToAdd = circle;
+        _circleToAdd.Radius = radius;
 
         ForEachInRadius(circle.Position, radius, OnTryAddCircle);
     }
@@ -52,7 +53,7 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerat
 
     private bool IntersectCircles(DistributedCircleGenerator.Circle b)
     {
-        return (_intersectionPosition - b.Position).sqrMagnitude <= Mathf.Pow(_intersectionRadius + b.Radius, 2);
+        return (_intersectionPosition - b.Position).sqrMagnitude < Mathf.Pow(_intersectionRadius + b.Radius, 2);
     }
 
     private void OnTryAddCircle(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
@@ -91,5 +92,22 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerat
         }
 
         //itemList.RemoveAll(_ => IntersectCircles(Circles[itemList[_]]));
+    }
+
+    public void OnDrawGizmos()
+    {
+        var items = GetItemsRaw();
+        for (var i = 0; i < items.Length; i++)
+        {
+            if (items[i] == null)
+            {
+                continue;
+            }
+
+            for (var j = 0; j < items[i].Count; j++)
+            {
+                Gizmos.DrawSphere(items[i][j].Position, items[i][j].Instance.Radius);
+            }
+        }
     }
 }

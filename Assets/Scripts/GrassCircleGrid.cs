@@ -11,13 +11,15 @@ namespace Grass
     {
         public WorldSpaceCircleGrid Grid { get; private set; }
 
-        [SerializeField] private Vector3 _size;
+        [SerializeField]
+        private Vector3 _size;
 
-        [SerializeField] private int _grassPerUnit = 4;
+        [SerializeField]
+        private int _grassPerUnit = 4;
 
         private int _gridSize;
 
-        private List<DistributedCircleGenerator.Circle> _circles; 
+        private List<DistributedCircleGenerator.Circle> _circles;
 
         private void OnEnable()
         {
@@ -38,7 +40,7 @@ namespace Grass
         {
             var terrain = GetComponent<Terrain>();
             _size = terrain.terrainData.size;
-            _gridSize = Mathf.RoundToInt(_size.x*_grassPerUnit);
+            _gridSize = Mathf.RoundToInt(_size.x * _grassPerUnit);
 
             _circles = new List<DistributedCircleGenerator.Circle>();
 
@@ -52,7 +54,7 @@ namespace Grass
                 return false;
             }
 
-            Grid.AddCircle(circle, radius, _circles.Count);
+            Grid.AddCircle(circle, radius);
             _circles.Add(circle);
 
             return true;
@@ -65,7 +67,7 @@ namespace Grass
         //        if (!Grid.Intersects(circles[i]))
         //        {
         //            Grid.AddCircle(circles[i], _circles.Count);
-                
+
         //            _circles.Add(circles[i]);
         //        }
         //    }
@@ -93,7 +95,13 @@ namespace Grass
 
         public void Erase(Vector3 worldPosition, float radius)
         {
-            Grid.RemoveCircle(worldPosition, radius, circle => DestroyImmediate(circle.Instance.gameObject));
+            Grid.RemoveCircle(worldPosition, radius, circle =>
+            {
+                if (circle.Instance != null)
+                {
+                    DestroyImmediate(circle.Instance.gameObject);
+                }
+            });
 
             //Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
             //{
@@ -104,6 +112,11 @@ namespace Grass
             //});
 
             //UpdateMeshes();
+        }
+
+        void OnDrawGizmos()
+        {
+            Grid.OnDrawGizmos();
         }
     }
 }
