@@ -6,7 +6,8 @@ using System.Collections;
 
 public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerator.Circle>>
 {
-    public WorldSpaceCircleGrid(int resolutionX, int resolutionZ, Vector3 worldSize) : base(resolutionX, resolutionZ, worldSize)
+    public WorldSpaceCircleGrid(int resolutionX, int resolutionZ, Vector3 worldSize)
+        : base(resolutionX, resolutionZ, worldSize)
     {
     }
 
@@ -16,22 +17,21 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerat
     private bool _circleIntersectionResult;
     private Action<DistributedCircleGenerator.Circle> _circleCallback;
 
-    public void AddCircle(DistributedCircleGenerator.Circle circle, float radius)
+    public void AddCircle(DistributedCircleGenerator.Circle circle)
     {
         _circleToAdd = circle;
-        _circleToAdd.Radius = radius;
 
-        ForEachInRadius(circle.Position, radius, OnTryAddCircle);
+        ForEachInRadius(circle.Position, circle.Radius, OnTryAddCircle);
     }
 
-    public bool Intersects(DistributedCircleGenerator.Circle circle, float radius)
+    public bool Intersects(DistributedCircleGenerator.Circle circle, float spacing)
     {
         _circleIntersectionResult = false;
 
         _intersectionPosition = circle.Position;
-        _intersectionRadius = radius;
+        _intersectionRadius = circle.Radius + spacing;
 
-        ForEachInRadius(circle.Position, radius, OnCircleIntersection);
+        ForEachInRadius(circle.Position, circle.Radius + spacing, OnCircleIntersection);
 
         return _circleIntersectionResult;
     }
@@ -60,7 +60,7 @@ public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerat
     {
         var delta = _intersectionPosition - b.Position;
         delta.y = 0;
-        
+
         return delta.sqrMagnitude < Mathf.Pow(_intersectionRadius + b.Radius, 2);
     }
 

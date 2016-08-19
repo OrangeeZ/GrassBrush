@@ -51,54 +51,6 @@ public class DistributedCircleGenerator : MonoBehaviour
 
             _circles.Add(new Circle { Position = worldPoint + transform.position, Radius = desiredRadius });
         }
-
-        //CalculateMinimumRadii();
-        //RemoveCirclesWithinMinDistance(_baseMinRadius * (1 - density));
-        //CalculateMinimumRadii();
-    }
-
-    private void CalculateMinimumRadii()
-    {
-        for (var i = 0; i < _circles.Count; i++)
-        {
-            var minSqrDistance = float.MaxValue;
-            var minDistanceCircle = default(Circle);
-
-            for (var j = 0; j < _circles.Count; j++)
-            {
-                if (i == j)
-                {
-                    continue;
-                }
-
-                var sqrDistance = (_circles[i].Position - _circles[j].Position).sqrMagnitude;
-
-                if (sqrDistance < minSqrDistance)
-                {
-                    minSqrDistance = sqrDistance;
-                    minDistanceCircle = _circles[j];
-                }
-            }
-
-            var minRadius = Mathf.Sqrt(minSqrDistance) * 0.5f;
-            minDistanceCircle.Radius = Mathf.Min(minRadius, minDistanceCircle.Radius);
-            _circles[i].Radius = minRadius;
-        }
-    }
-
-    private void RemoveCirclesWithinMinDistance(float minRadius)
-    {
-        _circles.RemoveAll(_ => _.Radius < minRadius);
-    }
-
-    void Update()
-    {
-        //if (transform.hasChanged)
-        //{
-        //    Generate(densi);
-
-        //    transform.hasChanged = false;
-        //}
     }
 
     void OnDrawGizmos()

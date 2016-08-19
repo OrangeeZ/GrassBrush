@@ -43,7 +43,9 @@ namespace Grass
             {
                 var each = _distributedCircleGenerator.GetCircles()[i];
 
-                if (!_grassGrid.TryAddCircle(each, _prefab.Radius + _spacing))
+                each.Radius = _prefab.Radius;
+
+                if (!_grassGrid.TryAddCircle(each, _spacing))
                 {
                     continue;
                 }

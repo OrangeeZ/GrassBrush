@@ -58,14 +58,14 @@ namespace Grass
             Grid = new WorldSpaceCircleGrid(_gridSize, _gridSize, _size);
         }
 
-        public bool TryAddCircle(DistributedCircleGenerator.Circle circle, float radius)
+        public bool TryAddCircle(DistributedCircleGenerator.Circle circle, float spacing)
         {
-            if (Grid.Intersects(circle, radius))
+            if (Grid.Intersects(circle, spacing))
             {
                 return false;
             }
 
-            Grid.AddCircle(circle, radius);
+            Grid.AddCircle(circle);
             _circles.Add(circle);
 
             return true;
@@ -156,14 +156,14 @@ namespace Grass
 
             for (var i = 0; i < _circles.Count; i++)
             {
-                Grid.AddCircle(_circles[i], _circles[i].Radius);
+                Grid.AddCircle(_circles[i]);
                 _circles[i].Instance.transform.position = _circles[i].Position;
             }
         }
 
         void OnDrawGizmos()
         {
-            Grid.OnDrawGizmos();
+            //Grid.OnDrawGizmos();
         }
     }
 }
