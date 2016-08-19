@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BO.Utilities;
 using UnityEngine;
 using System.Collections;
@@ -21,6 +22,8 @@ namespace Grass
 
         private List<DistributedCircleGenerator.Circle> _circles;
 
+        private DetailObjectsData _detailObjectsData;
+
         private void OnEnable()
         {
             UpdateSettings();
@@ -33,6 +36,14 @@ namespace Grass
             //{
             //    DestroyImmediate(gridItems[i]);
             //}
+        }
+
+        void Start()
+        {
+            if (!Application.isPlaying)
+            {
+                Load();
+            }
         }
 
         [ContextMenu("Update settings")]
@@ -103,6 +114,8 @@ namespace Grass
                 }
             });
 
+            _circles.RemoveAll(_ => _.Instance == null);
+
             //Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
             //{
             //    items[index] = null;
@@ -114,9 +127,43 @@ namespace Grass
             //UpdateMeshes();
         }
 
+        [ContextMenu("Save")]
+        private void Save()
+        {
+            var scene = gameObject.scene;
+            var path = scene.path.Replace(".unity", "_DetailObjectsData.asset");
+
+            _detailObjectsData = ScriptableObject.CreateInstance<DetailObjectsData>();
+            _detailObjectsData.SetDetailObjects(_circles);
+
+            UnityEditor.AssetDatabase.CreateAsset(_detailObjectsData, path);
+        }
+
+        [ContextMenu("Load")]
+        private void Load()
+        {
+            var scene = gameObject.scene;
+            var path = scene.path.Replace(".unity", "_DetailObjectsData.asset");
+
+            _detailObjectsData = UnityEditor.AssetDatabase.LoadAssetAtPath<DetailObjectsData>(path);
+
+            _circles = _detailObjectsData.GetDetailObjects().Select(_ => new DistributedCircleGenerator.Circle
+             {
+                 Position = _.Position,
+                 Radius = _.Radius,
+                 Instance = UnityEditor.PrefabUtility.InstantiatePrefab(_.Instance) as DetailPreset
+             }).ToList();
+
+            for (var i = 0; i < _circles.Count; i++)
+            {
+                Grid.AddCircle(_circles[i], _circles[i].Radius);
+                _circles[i].Instance.transform.position = _circles[i].Position;
+            }
+        }
+
         void OnDrawGizmos()
         {
-            Grid.OnDrawGizmos();
+            //Grid.OnDrawGizmos();
         }
     }
 }
