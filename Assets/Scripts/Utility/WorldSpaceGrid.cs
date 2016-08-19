@@ -58,32 +58,38 @@ namespace BO.Utilities
 
         public void ForEachInRadius(Vector3 worldPosition, float radius, GridElementCallback callback)
         {
-            var radiusX = WorldToGridX(radius);
-            var radiusZ = WorldToGridZ(radius);
+            //var radiusX = WorldToGridX(radius);
+            //var radiusZ = WorldToGridZ(radius);
 
-            var centerX = WorldToGridX(worldPosition.x);
-            var centerZ = WorldToGridZ(worldPosition.z);
+            //var centerX = WorldToGridX(worldPosition.x);
+            //var centerZ = WorldToGridZ(worldPosition.z);
 
-            for (var x = -radiusX; x <= radiusX; x++)
+            var fromX = WorldToGridX(worldPosition.x - radius);
+            var toX = WorldToGridX(worldPosition.x + radius);
+
+            var fromZ = WorldToGridZ(worldPosition.z - radius);
+            var toZ = WorldToGridZ(worldPosition.z + radius);
+
+            for (var x = fromX; x <= toX; x++)
             {
-                for (var z = -radiusZ; z <= radiusZ; z++)
+                for (var z = fromZ; z <= toZ; z++)
                 {
-                    if (new Vector2(x, z).sqrMagnitude > radiusX * radiusZ)
-                    {
-                        continue;
-                    }
+                    //if (new Vector2(x, z).sqrMagnitude > radiusX * radiusZ)
+                    //{
+                    //    continue;
+                    //}
 
-                    var gridPositionX = x + centerX;
-                    var gridPositionZ = z + centerZ;
+                    //var gridPositionX = x + centerX;
+                    //var gridPositionZ = z + centerZ;
 
-                    var itemIndex = gridPositionZ * ResolutionX + gridPositionX;
+                    var itemIndex = z * ResolutionX + x;
 
                     if (itemIndex < 0 || itemIndex >= _items.Length)
                     {
                         continue;
                     }
 
-                    callback(_items, gridPositionX, gridPositionZ, itemIndex);
+                    callback(_items, x, z, itemIndex);
                 }
             }
         }

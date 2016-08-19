@@ -163,7 +163,7 @@ namespace Grass
 
         void OnDrawGizmos()
         {
-            //Grid.OnDrawGizmos();
+            Grid.OnDrawGizmos();
         }
     }
 }

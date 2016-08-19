@@ -37,7 +37,7 @@ public class DistributedCircleGenerator : MonoBehaviour
     }
 
     [ContextMenu("Generate seed")]
-    public void Generate(float density)
+    public void Generate(float density, float desiredRadius)
     {
         _circles.Clear();
 
@@ -49,11 +49,11 @@ public class DistributedCircleGenerator : MonoBehaviour
             var point = Random.insideUnitCircle * _radius;
             var worldPoint = new Vector3(point.x, 0, point.y);
 
-            _circles.Add(new Circle { Position = worldPoint + transform.position, Radius = float.NaN });
+            _circles.Add(new Circle { Position = worldPoint + transform.position, Radius = desiredRadius });
         }
 
-        CalculateMinimumRadii();
-        RemoveCirclesWithinMinDistance(_baseMinRadius * (1 - density));
+        //CalculateMinimumRadii();
+        //RemoveCirclesWithinMinDistance(_baseMinRadius * (1 - density));
         //CalculateMinimumRadii();
     }
 
@@ -101,7 +101,7 @@ public class DistributedCircleGenerator : MonoBehaviour
         //}
     }
 
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
         for (var i = 0; i < _circles.Count; i++)
         {

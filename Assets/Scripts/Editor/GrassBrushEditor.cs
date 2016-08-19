@@ -17,7 +17,7 @@ namespace Grass.Editor
         void OnSceneGUI()
         {
             var currentEvent = Event.current;
-            if (currentEvent.type == EventType.MouseDown || currentEvent.type == EventType.MouseDrag || currentEvent.type == EventType.MouseUp)
+            if (currentEvent.type == EventType.MouseDrag || currentEvent.type == EventType.MouseUp)
             {
                 if (currentEvent.button == 0)
                 {
