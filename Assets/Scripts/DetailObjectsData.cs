@@ -15,25 +15,6 @@ public class DetailObjectsData : ScriptableObject
 
     public void SetDetailObjects(IList<DistributedCircleGenerator.Circle> detailObjects)
     {
-        _detailObjects = detailObjects.ToList();// detailObjects.Select<DistributedCircleGenerator.Circle, DistributedCircleGenerator.Circle>(InstanceSelector).ToList();
-    }
-
-    private DistributedCircleGenerator.Circle InstanceSelector(DistributedCircleGenerator.Circle _)
-    {
-        var result = new DistributedCircleGenerator.Circle
-        {
-            Position = _.Position,
-            AngleY = _.AngleY,
-            Scale = _.Scale,
-            Radius = _.Radius,
-            Instance = UnityEditor.PrefabUtility.GetPrefabParent(_.Instance) as DetailPreset
-        };
-
-        if (result.Instance == null)
-        {
-            Debug.LogError("null instance!");
-        }
-
-        return result;
+        _detailObjects = detailObjects.ToList();
     }
 }

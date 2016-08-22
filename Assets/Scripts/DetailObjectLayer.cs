@@ -8,9 +8,11 @@ using System.Collections;
 namespace Grass
 {
     [ExecuteInEditMode]
-    public class GrassCircleGrid : MonoBehaviour
+    public class DetailObjectLayer : MonoBehaviour
     {
         public WorldSpaceCircleGrid Grid { get; private set; }
+
+        public DetailObjectBrush Brush;
 
         [SerializeField]
         private Vector3 _size;
@@ -52,6 +54,8 @@ namespace Grass
             {
                 Load();
             }
+
+            Brush = new DetailObjectBrush();
         }
 
         [ContextMenu("Update settings")]
@@ -80,7 +84,7 @@ namespace Grass
 
             return true;
         }
-        
+
         public void Erase(Vector3 worldPosition, float radius)
         {
             Grid.RemoveCircle(worldPosition, radius, circle =>

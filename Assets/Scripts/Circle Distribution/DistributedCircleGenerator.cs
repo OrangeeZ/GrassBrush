@@ -4,7 +4,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [ExecuteInEditMode]
-public class DistributedCircleGenerator : MonoBehaviour
+public class DistributedCircleGenerator
 {
     [Serializable]
     public class Circle
@@ -24,7 +24,7 @@ public class DistributedCircleGenerator : MonoBehaviour
     }
 
     [SerializeField]
-    private int _pointsPerUnit = 5;
+    private int _pointsPerUnit = 1;
 
     [SerializeField]
     private float _radius = 5f;
@@ -42,7 +42,7 @@ public class DistributedCircleGenerator : MonoBehaviour
     }
 
     [ContextMenu("Generate seed")]
-    public void Generate(float density, float desiredRadius)
+    public void Generate(Vector3 position, float density, float desiredRadius)
     {
         _circles.Clear();
 
@@ -54,7 +54,7 @@ public class DistributedCircleGenerator : MonoBehaviour
             var point = Random.insideUnitCircle * _radius;
             var worldPoint = new Vector3(point.x, 0, point.y);
 
-            _circles.Add(new Circle { Position = worldPoint + transform.position, Radius = desiredRadius });
+            _circles.Add(new Circle { Position = worldPoint + position, Radius = desiredRadius });
         }
     }
 

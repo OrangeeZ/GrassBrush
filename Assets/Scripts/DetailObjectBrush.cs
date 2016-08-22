@@ -1,13 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 namespace Grass
 {
-    [ExecuteInEditMode]
-    public class GrassBrush : MonoBehaviour
+    [Serializable]
+    public class DetailObjectBrush
     {
         public float Density { get { return _density; } }
+
+        public Vector3 Position { get; set; }
+
+        [Range(1f, 50)]
+        public float Radius;
 
         [SerializeField]
         private DetailPreset _prefab;
@@ -16,7 +23,7 @@ namespace Grass
         private float _spacing;
 
         [SerializeField]
-        private GrassCircleGrid _grassGrid;
+        private DetailObjectLayer _grassGrid;
 
         [SerializeField]
         [Range(0.1f, 1f)]
@@ -40,10 +47,10 @@ namespace Grass
         [ContextMenu("Draw")]
         public void Draw()
         {
-            _distributedCircleGenerator.transform.position = transform.position;
+            _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
-            _distributedCircleGenerator.SetRadius(transform.localScale.x);
-            _distributedCircleGenerator.Generate(_density, _prefab.Radius);
+            _distributedCircleGenerator.SetRadius(Radius);
+            _distributedCircleGenerator.Generate(Position, _density, _prefab.Radius);
 
             for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
             {
@@ -66,22 +73,14 @@ namespace Grass
 
         public void Erase()
         {
-            _distributedCircleGenerator.transform.position = transform.position;
-
-            _distributedCircleGenerator.SetRadius(transform.localScale.x);
-            _distributedCircleGenerator.Generate(_density, _prefab.Radius);
+            _distributedCircleGenerator.SetRadius(Radius);
+            _distributedCircleGenerator.Generate(Position, _density, _prefab.Radius);
 
             for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
             {
                 var each = _distributedCircleGenerator.GetCircles()[i];
                 _grassGrid.Erase(each.Position, each.Radius);
             }
-        }
-
-        void OnDrawGizmos()
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, transform.localScale.x);
         }
     }
 }
