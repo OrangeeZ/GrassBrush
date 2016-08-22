@@ -38,6 +38,14 @@ namespace Grass
             //}
         }
 
+        void OnDestroy()
+        {
+            for (int i = 0; i < _circles.Count; i++)
+            {
+                UnityEngine.Object.DestroyImmediate(_circles[i].Instance.gameObject);
+            }
+        }
+
         void Start()
         {
             if (!Application.isPlaying)
@@ -118,20 +126,27 @@ namespace Grass
 
         private void SetupInstance(DistributedCircleGenerator.Circle target)
         {
-            target.Instance = UnityEditor.PrefabUtility.InstantiatePrefab(target.Prefab) as DetailPreset;
+            var instance = UnityEditor.PrefabUtility.InstantiatePrefab(target.Prefab) as DetailPreset;
 
             var height = Terrain.activeTerrain.SampleHeight(target.Position);
-            target.Position.y = height + target.Instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
+            target.Position.y = height + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
 
             target.AngleY = 0;
 
-            target.Instance.transform.position = target.Position;
+            instance.transform.position = target.Position;
 
             var normal = Terrain.activeTerrain.terrainData.GetInterpolatedNormal(target.Position.x / Terrain.activeTerrain.terrainData.size.x, target.Position.z / Terrain.activeTerrain.terrainData.size.z);
-            target.Instance.transform.up = normal;
+            instance.transform.up = normal;
 
-            target.Instance.transform.localScale = Vector3.one * target.Scale;
-            target.Instance.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+            instance.transform.localScale = Vector3.one * target.Scale;
+            instance.gameObject.hideFlags = HideFlags.HideAndDontSave;
+
+            var renderer = instance.GetComponent<Renderer>();
+            var propertyBlock = new MaterialPropertyBlock();
+            propertyBlock.SetColor("_Color", target.Color);
+            renderer.SetPropertyBlock(propertyBlock);
+
+            target.Instance = instance;
         }
 
         void OnDrawGizmos()

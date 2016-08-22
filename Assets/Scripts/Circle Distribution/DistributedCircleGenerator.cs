@@ -17,6 +17,8 @@ public class DistributedCircleGenerator : MonoBehaviour
 
         public DetailPreset Prefab;
 
+        public Color32 Color;
+
         [NonSerialized]
         public DetailPreset Instance;
     }

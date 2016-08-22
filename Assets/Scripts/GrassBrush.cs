@@ -31,6 +31,12 @@ namespace Grass
         [SerializeField]
         private float _maxHeight = 2f;
 
+        [SerializeField]
+        private Color32 _fromColor = Color.white;
+
+        [SerializeField]
+        private Color32 _toColor = Color.white;
+
         [ContextMenu("Draw")]
         public void Draw()
         {
@@ -48,6 +54,8 @@ namespace Grass
 
                 var scale = Mathf.Lerp(_minHeight, _maxHeight, Random.Range(0, 1f));
                 each.Scale = scale;
+
+                each.Color = Color32.Lerp(_fromColor, _toColor, Random.Range(0, 1f));
 
                 if (!_grassGrid.TryAddCircle(each, _spacing))
                 {
