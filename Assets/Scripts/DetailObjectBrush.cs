@@ -9,6 +9,8 @@ namespace Grass
     [Serializable]
     public class DetailObjectBrush
     {
+        public string Name;
+
         public float Density { get { return _density; } }
 
         public Vector3 Position { get; set; }
