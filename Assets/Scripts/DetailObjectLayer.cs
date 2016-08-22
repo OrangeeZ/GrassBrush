@@ -31,37 +31,25 @@ namespace Grass
         private void OnEnable()
         {
             UpdateSettings();
+
+            if (!Application.isPlaying)
+            {
+                Load();
+            }
         }
 
         private void OnDisable()
-        {
-            //var gridItems = Grid.GetItemsRaw();
-            //for (var i = 0; i < gridItems.Length; i++)
-            //{
-            //    DestroyImmediate(gridItems[i]);
-            //}
-        }
-
-        void OnDestroy()
         {
             for (int i = 0; i < _circles.Count; i++)
             {
                 UnityEngine.Object.DestroyImmediate(_circles[i].Instance.gameObject);
             }
-        }
+            //var gridItems = Grid.GetItemsRaw();
+            //for (var i = 0; i < gridItems.Length; i++)
+            //{
+            //    DestroyImmediate(gridItems[i]);
+            //}
 
-        void Start()
-        {
-            if (!Application.isPlaying)
-            {
-                Load();
-            }
-
-            if (Brushes == null || Brushes.Count == 0)
-            {
-                //Brushes = new List<DetailObjectBrush>();
-                //Brushes.Add(ScriptableObject.CreateInstance<DetailObjectBrush>());
-            }
         }
 
         [ContextMenu("Update settings")]

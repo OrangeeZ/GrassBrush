@@ -75,6 +75,8 @@ namespace Grass
 
         public void Erase()
         {
+            _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
+
             _distributedCircleGenerator.SetRadius(Radius);
             _distributedCircleGenerator.Generate(Position, _density, _prefab.Radius);
 
