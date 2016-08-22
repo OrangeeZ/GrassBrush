@@ -132,15 +132,7 @@ namespace Grass
         {
             var instance = UnityEditor.PrefabUtility.InstantiatePrefab(target.Prefab) as DetailPreset;
 
-            var height = Terrain.activeTerrain.SampleHeight(target.Position);
-            target.Position.y = height + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
-
-            target.AngleY = 0;
-
-            instance.transform.position = target.Position;
-
-            var normal = Terrain.activeTerrain.terrainData.GetInterpolatedNormal(target.Position.x / Terrain.activeTerrain.terrainData.size.x, target.Position.z / Terrain.activeTerrain.terrainData.size.z);
-            instance.transform.up = normal;
+            SnapTargetToTerrain(target, instance);
 
             instance.transform.localScale = Vector3.one * target.Scale;
             instance.gameObject.hideFlags = HideFlags.HideAndDontSave;
@@ -151,6 +143,22 @@ namespace Grass
             renderer.SetPropertyBlock(propertyBlock);
 
             target.Instance = instance;
+        }
+
+        private void SnapTargetToTerrain(DistributedCircleGenerator.Circle target, DetailPreset instance)
+        {
+            var height = Terrain.activeTerrain.SampleHeight(target.Position);
+            target.Position.y = height + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
+
+            target.AngleY = 0;
+
+            instance.transform.position = target.Position;
+
+            if (Brush.SnapToNormals)
+            {
+                var normal = Terrain.activeTerrain.terrainData.GetInterpolatedNormal(target.Position.x / Terrain.activeTerrain.terrainData.size.x, target.Position.z / Terrain.activeTerrain.terrainData.size.z);
+                instance.transform.up = normal;
+            }
         }
 
         void OnDrawGizmos()

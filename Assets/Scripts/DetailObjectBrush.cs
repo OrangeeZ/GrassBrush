@@ -13,6 +13,8 @@ namespace Grass
 
         public Vector3 Position { get; set; }
 
+        public bool SnapToNormals = true;
+
         [Range(1f, 50)]
         public float Radius;
 
