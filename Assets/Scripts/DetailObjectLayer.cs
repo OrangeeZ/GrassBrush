@@ -12,7 +12,9 @@ namespace Grass
     {
         public WorldSpaceCircleGrid Grid { get; private set; }
 
-        public DetailObjectBrush Brush;
+        public DetailObjectBrush ActiveBrush;
+        public List<DetailObjectBrush> Brushes;
+        public int ActiveBrushIndex = 0;
 
         [SerializeField]
         private Vector3 _size;
@@ -55,7 +57,11 @@ namespace Grass
                 Load();
             }
 
-            Brush = new DetailObjectBrush();
+            if (Brushes == null || Brushes.Count == 0)
+            {
+                //Brushes = new List<DetailObjectBrush>();
+                //Brushes.Add(ScriptableObject.CreateInstance<DetailObjectBrush>());
+            }
         }
 
         [ContextMenu("Update settings")]
@@ -98,6 +104,21 @@ namespace Grass
             _circles.RemoveAll(_ => _.Instance == null);
         }
 
+        public void SetPresetActive(int presetIndex)
+        {
+            ActiveBrush = Brushes[presetIndex].Copy();
+        }
+
+        public void RemovePreset(int presetIndex)
+        {
+            Brushes.RemoveAt(presetIndex);
+        }
+
+        public void AddActivePreset()
+        {
+            Brushes.Add(ActiveBrush.Copy());
+        }
+
         [ContextMenu("Save")]
         private void Save()
         {
@@ -117,6 +138,11 @@ namespace Grass
             var path = scene.path.Replace(".unity", "_DetailObjectsData.asset");
 
             _detailObjectsData = UnityEditor.AssetDatabase.LoadAssetAtPath<DetailObjectsData>(path);
+
+            if (_detailObjectsData == null)
+            {
+                return;
+            }
 
             _circles = _detailObjectsData.GetDetailObjects().ToList();
 
@@ -154,7 +180,7 @@ namespace Grass
 
             instance.transform.position = target.Position;
 
-            if (Brush.SnapToNormals)
+            if (ActiveBrush.SnapToNormals)
             {
                 var normal = Terrain.activeTerrain.terrainData.GetInterpolatedNormal(target.Position.x / Terrain.activeTerrain.terrainData.size.x, target.Position.z / Terrain.activeTerrain.terrainData.size.z);
                 instance.transform.up = normal;

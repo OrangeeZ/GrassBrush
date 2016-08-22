@@ -84,5 +84,10 @@ namespace Grass
                 _grassGrid.Erase(each.Position, each.Radius);
             }
         }
+
+        public DetailObjectBrush Copy()
+        {
+            return MemberwiseClone() as DetailObjectBrush;
+        }
     }
 }
