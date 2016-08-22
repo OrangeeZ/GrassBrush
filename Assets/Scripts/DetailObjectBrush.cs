@@ -85,6 +85,8 @@ namespace Grass
                 var each = _distributedCircleGenerator.GetCircles()[i];
                 _grassGrid.Erase(each.Position, each.Radius);
             }
+
+            _grassGrid.OnEraseFinish();
         }
 
         public DetailObjectBrush Copy()

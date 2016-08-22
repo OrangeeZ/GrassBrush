@@ -88,7 +88,10 @@ namespace Grass
                     DestroyImmediate(circle.Instance.gameObject);
                 }
             });
+        }
 
+        public void OnEraseFinish()
+        {
             _circles.RemoveAll(_ => _.Instance == null);
         }
 
