@@ -72,40 +72,7 @@ namespace Grass
 
             return true;
         }
-
-        //public void DrawBrush(IList<DistributedCircleGenerator.Circle> circles)
-        //{
-        //    for (var i = 0; i < circles.Count; i++)
-        //    {
-        //        if (!Grid.Intersects(circles[i]))
-        //        {
-        //            Grid.AddCircle(circles[i], _circles.Count);
-
-        //            _circles.Add(circles[i]);
-        //        }
-        //    }
-        //}
-
-        public void DrawBrush(Vector3 worldPosition, float radius, GrassBrush brush, GrassParameters parameters)
-        {
-            //Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
-            //{
-            //    var grassInstance = parameters.PlaceGrassAtPosition(new Vector3(x, 0, z) / _grassPerUnit, brush.Density);
-
-            //    if (grassInstance == null)
-            //    {
-            //        return;
-            //    }
-
-            //    items[index] = grassInstance;//.GetComponent<MeshFilter>().sharedMesh;// grassInstance;
-
-            //    var tileId = TileSet.GetTileIdAtGridPosition(x, z);
-            //    TileSet.SetTileDirty(tileId, true);
-            //});
-
-            //UpdateMeshes();
-        }
-
+        
         public void Erase(Vector3 worldPosition, float radius)
         {
             Grid.RemoveCircle(worldPosition, radius, circle =>
@@ -117,16 +84,6 @@ namespace Grass
             });
 
             _circles.RemoveAll(_ => _.Instance == null);
-
-            //Grid.ForEachInRadius(worldPosition, radius, (items, x, z, index) =>
-            //{
-            //    items[index] = null;
-
-            //    var tileId = TileSet.GetTileIdAtGridPosition(x, z);
-            //    TileSet.SetTileDirty(tileId, true);
-            //});
-
-            //UpdateMeshes();
         }
 
         [ContextMenu("Save")]

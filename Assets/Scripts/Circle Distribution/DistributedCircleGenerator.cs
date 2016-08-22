@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 using Random = UnityEngine.Random;
 
 [ExecuteInEditMode]
@@ -27,9 +26,6 @@ public class DistributedCircleGenerator : MonoBehaviour
 
     [SerializeField]
     private float _radius = 5f;
-
-    [SerializeField]
-    private float _baseMinRadius = 0.5f;
 
     private List<Circle> _circles = new List<Circle>();
 
