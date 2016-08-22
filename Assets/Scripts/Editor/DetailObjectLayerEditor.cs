@@ -1,7 +1,4 @@
-﻿using Grass;
-using UnityEditor.AnimatedValues;
-using UnityEditorInternal;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace Grass
@@ -64,120 +61,68 @@ namespace Grass
         public override void OnInspectorGUI()
         {
             _presetList.OnInspectorGUI();
-
-
-            //_target.ActiveBrushIndex = _presetList.ActiveBrushIndex;
-
-            //base.OnInspectorGUI();
         }
     }
-}
 
-public class DetailObjectPresetList
-{
-    public int ActiveBrushIndex;
-
-    public DetailObjectBrush ActiveBrush { get; private set; }
-    private readonly SerializedObject _targetObject;
-    private readonly SerializedProperty _targetProperty;
-    private readonly DetailObjectLayer _detailObjectLayer;
-
-    //public List<DetailObjectBrush> Brushes;
-
-    private ReorderableList _presetList;
-
-    private AnimBool _showScope;
-    private SerializedProperty _activeBrush;
-
-    public DetailObjectPresetList(SerializedObject targetObject, SerializedProperty targetProperty, DetailObjectLayer detailObjectLayer)
+    public class DetailObjectPresetList
     {
-        _targetObject = targetObject;
-        _targetProperty = targetProperty;
-        _detailObjectLayer = detailObjectLayer;
-        _presetList = new ReorderableList(targetObject, targetProperty, draggable: false, displayHeader: false, displayAddButton: true, displayRemoveButton: true);
+        public int ActiveBrushIndex;
 
-        _presetList.drawElementCallback = (rect, index, active, focused) =>
+        public DetailObjectBrush ActiveBrush { get; private set; }
+        private readonly SerializedObject _targetObject;
+        private readonly SerializedProperty _targetProperty;
+        private readonly DetailObjectLayer _detailObjectLayer;
+
+        private SerializedProperty _activeBrush;
+
+        public DetailObjectPresetList(SerializedObject targetObject, SerializedProperty targetProperty, DetailObjectLayer detailObjectLayer)
         {
-            rect.x += 20;
-            var element = targetProperty.GetArrayElementAtIndex(index);
-            EditorGUI.PropertyField(rect, element, includeChildren: true);
+            _targetObject = targetObject;
+            _targetProperty = targetProperty;
+            _detailObjectLayer = detailObjectLayer;
 
-            if (GUILayout.Button("V"))
-            {
-                //ActiveBrush = ele
-            }
-        };
-
-        _presetList.elementHeightCallback = (index) =>
-        {
-            var element = _targetProperty.GetArrayElementAtIndex(index);
-            return EditorGUI.GetPropertyHeight(element);
-        };
-
-        _activeBrush = _targetObject.FindProperty("ActiveBrush");
-
-        //_showScope = new AnimBool(repaintCallback);
-    }
-
-    public void OnInspectorGUI()
-    {
-        _targetObject.Update();
-
-        EditorGUILayout.PropertyField(_activeBrush, includeChildren: true);
-
-        if (GUILayout.Button("Add active preset"))
-        {
-            _detailObjectLayer.AddActivePreset();
-
-            return;
+            _activeBrush = _targetObject.FindProperty("ActiveBrush");
         }
 
-        for (var i = 0; i < _targetProperty.arraySize; i++)
+        public void OnInspectorGUI()
         {
-            var element = _targetProperty.GetArrayElementAtIndex(i);
+            _targetObject.Update();
 
-            using (var horizontalScope = new EditorGUILayout.HorizontalScope())
+            EditorGUILayout.PropertyField(_activeBrush, includeChildren: true);
+
+            if (GUILayout.Button("Add active preset"))
             {
-                if (GUILayout.Button("A", GUILayout.Width(20)))
+                _detailObjectLayer.AddActivePreset();
+
+                return;
+            }
+
+            for (var i = 0; i < _targetProperty.arraySize; i++)
+            {
+                var element = _targetProperty.GetArrayElementAtIndex(i);
+
+                using (var horizontalScope = new EditorGUILayout.HorizontalScope())
                 {
-                    _detailObjectLayer.SetPresetActive(i);
-                }
+                    if (GUILayout.Button("A", GUILayout.Width(20)))
+                    {
+                        _detailObjectLayer.SetPresetActive(i);
+                    }
 
-                
+                    GUILayout.Space(10);
 
-                GUILayout.Space(10);
+                    EditorGUILayout.PropertyField(element, includeChildren: true);
 
-                //var isActive = EditorGUILayout.Toggle(ActiveBrushIndex == i, GUILayout.Width(20));
+                    GUILayout.Space(10);
 
-                //if (isActive)
-                //{
-                //    ActiveBrushIndex = i;
-                //}
-
-                EditorGUILayout.PropertyField(element, includeChildren: true);
-
-                GUILayout.Space(10);
-
-
-                if (GUILayout.Button("X", GUILayout.Width(20)))
-                {
-                    _detailObjectLayer.RemovePreset(i);
-                    return;
+                    if (GUILayout.Button("X", GUILayout.Width(20)))
+                    {
+                        _detailObjectLayer.RemovePreset(i);
+                        return;
+                    }
                 }
             }
-        }
 
-        _targetObject.ApplyModifiedProperties();
-        
-        //_targetObject.Update();
-        //_presetList.DoLayoutList();
-        //_targetObject.ApplyModifiedProperties();
-        //EditorGUILayout.PropertyField(_presetList.)
-        //_showScope.target = EditorGUILayout.Foldout(_showScope.target, "Show extra fields");
-        //using (var scope = new EditorGUILayout.FadeGroupScope(_showScope.faded))
-        {
-            //EditorGUILayout.PropertyField()
-            //_showScope.target = scope.visible;
+            _targetObject.ApplyModifiedProperties();
         }
     }
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using BO.Utilities;
 using UnityEngine;
-using System.Collections;
 
 namespace Grass
 {
@@ -44,12 +41,6 @@ namespace Grass
             {
                 UnityEngine.Object.DestroyImmediate(_circles[i].Instance.gameObject);
             }
-            //var gridItems = Grid.GetItemsRaw();
-            //for (var i = 0; i < gridItems.Length; i++)
-            //{
-            //    DestroyImmediate(gridItems[i]);
-            //}
-
         }
 
         [ContextMenu("Update settings")]
