@@ -36,7 +36,7 @@ namespace Grass
 
             var isMouseMoving = currentEvent.type == EventType.MouseDrag || currentEvent.type == EventType.MouseUp;
 
-            if (isMouseMoving)
+            if (isMouseMoving && !currentEvent.alt)
             {
                 if (currentEvent.button == 0)
                 {
