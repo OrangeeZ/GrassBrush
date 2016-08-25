@@ -145,7 +145,7 @@ namespace Grass
             instance.transform.localScale = Vector3.one * target.Scale;
             instance.gameObject.hideFlags = HideFlags.HideAndDontSave;
 
-            var renderer = instance.GetComponent<Renderer>();
+            var renderer = instance.GetComponentInChildren<Renderer>();
             var propertyBlock = new MaterialPropertyBlock();
             propertyBlock.SetColor("_Color", target.Color);
             renderer.SetPropertyBlock(propertyBlock);
@@ -156,10 +156,8 @@ namespace Grass
         private void SnapTargetToTerrain(DistributedCircleGenerator.Circle target, DetailPreset instance)
         {
             var height = Terrain.activeTerrain.SampleHeight(target.Position);
-            target.Position.y = height + instance.GetComponent<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
-
-            target.AngleY = 0;
-
+            target.Position.y = height;// +instance.GetComponentInChildren<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
+            
             instance.transform.position = target.Position;
 
             if (ActiveBrush.SnapToNormals)
@@ -167,6 +165,8 @@ namespace Grass
                 var normal = Terrain.activeTerrain.terrainData.GetInterpolatedNormal(target.Position.x / Terrain.activeTerrain.terrainData.size.x, target.Position.z / Terrain.activeTerrain.terrainData.size.z);
                 instance.transform.up = normal;
             }
+
+            instance.transform.rotation *= Quaternion.AngleAxis(target.AngleY, Vector3.up);
         }
 
         void OnDrawGizmos()

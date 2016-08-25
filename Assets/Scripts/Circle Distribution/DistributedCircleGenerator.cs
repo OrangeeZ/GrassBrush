@@ -41,7 +41,7 @@ public class DistributedCircleGenerator
     }
 
     [ContextMenu("Generate seed")]
-    public void Generate(Vector3 position, float density, float desiredRadius)
+    public void Generate(Vector3 position, float density)
     {
         _circles.Clear();
 
@@ -53,7 +53,7 @@ public class DistributedCircleGenerator
             var point = Random.insideUnitCircle * _radius;
             var worldPoint = new Vector3(point.x, 0, point.y);
 
-            _circles.Add(new Circle { Position = worldPoint + position, Radius = desiredRadius });
+            _circles.Add(new Circle { Position = worldPoint + position, Radius = 0f });
         }
     }
 

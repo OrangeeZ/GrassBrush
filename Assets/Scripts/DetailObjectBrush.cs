@@ -21,7 +21,7 @@ namespace Grass
         public float Radius;
 
         [SerializeField]
-        private DetailPreset _prefab;
+        private DetailPreset[] _prefabs;
 
         [SerializeField]
         private float _spacing;
@@ -54,14 +54,17 @@ namespace Grass
             _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
             _distributedCircleGenerator.SetRadius(Radius);
-            _distributedCircleGenerator.Generate(Position, _density, _prefab.Radius);
+            _distributedCircleGenerator.Generate(Position, _density);
 
             for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
             {
                 var each = _distributedCircleGenerator.GetCircles()[i];
+                var randomPrefab = _prefabs[Random.Range(0, _prefabs.Length)];
 
-                each.Prefab = _prefab;
-                each.Radius = _prefab.Radius;
+                each.Prefab = randomPrefab;
+                each.Radius = randomPrefab.Radius;
+
+                each.AngleY = Random.Range(0, 360f);
 
                 var scale = Mathf.Lerp(_minHeight, _maxHeight, Random.Range(0, 1f));
                 each.Scale = scale;
@@ -80,12 +83,14 @@ namespace Grass
             _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
             _distributedCircleGenerator.SetRadius(Radius);
-            _distributedCircleGenerator.Generate(Position, _density, _prefab.Radius);
+            _distributedCircleGenerator.Generate(Position, _density);
 
             for (int i = 0; i < _distributedCircleGenerator.GetCircles().Count; i++)
             {
                 var each = _distributedCircleGenerator.GetCircles()[i];
-                _grassGrid.Erase(each.Position, each.Radius);
+                var randomPrefab = _prefabs[Random.Range(0, _prefabs.Length)];
+
+                _grassGrid.Erase(each.Position, randomPrefab.Radius);
             }
 
             _grassGrid.OnEraseFinish();
