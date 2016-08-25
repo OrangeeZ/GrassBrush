@@ -43,11 +43,11 @@ namespace Grass
 
                         if (!currentEvent.shift)
                         {
-                            brush.Draw();
+                            brush.Draw(_target);
                         }
                         else
                         {
-                            brush.Erase();
+                            brush.Erase(_target);
                         }
                     }
 

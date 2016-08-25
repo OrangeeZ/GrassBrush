@@ -46,8 +46,7 @@ namespace Grass
         [ContextMenu("Update settings")]
         private void UpdateSettings()
         {
-            var terrain = GetComponent<Terrain>();
-            _size = terrain.terrainData.size;
+            _size = Terrain.activeTerrain.terrainData.size;
             _gridSize = Mathf.RoundToInt(_size.x * _grassPerUnit);
 
             _circles = new List<DistributedCircleGenerator.Circle>();

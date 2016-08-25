@@ -27,9 +27,6 @@ namespace Grass
         private float _spacing;
 
         [SerializeField]
-        private DetailObjectLayer _grassGrid;
-
-        [SerializeField]
         [Range(0.1f, 1f)]
         private float _density = 1f;
 
@@ -49,7 +46,7 @@ namespace Grass
         private Color32 _toColor = Color.white;
 
         [ContextMenu("Draw")]
-        public void Draw()
+        public void Draw(DetailObjectLayer detailObjectLayer)
         {
             _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
@@ -71,14 +68,14 @@ namespace Grass
 
                 each.Color = Color32.Lerp(_fromColor, _toColor, Random.Range(0, 1f));
 
-                if (!_grassGrid.TryAddCircle(each, _spacing))
+                if (!detailObjectLayer.TryAddCircle(each, _spacing))
                 {
                     //continue;
                 }
             }
         }
 
-        public void Erase()
+        public void Erase(DetailObjectLayer detailObjectLayer)
         {
             _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
@@ -90,10 +87,10 @@ namespace Grass
                 var each = _distributedCircleGenerator.GetCircles()[i];
                 var randomPrefab = _prefabs[Random.Range(0, _prefabs.Length)];
 
-                _grassGrid.Erase(each.Position, randomPrefab.Radius);
+                detailObjectLayer.Erase(each.Position, randomPrefab.Radius);
             }
 
-            _grassGrid.OnEraseFinish();
+            detailObjectLayer.OnEraseFinish();
         }
 
         public DetailObjectBrush Copy()
