@@ -14,7 +14,18 @@ namespace Grass
         {
             _target = target as DetailObjectLayer;
 
-            _presetList = new DetailObjectPresetList(serializedObject, serializedObject.FindProperty("Brushes"), _target);
+            if (_target.PresetsInfo == null)
+            {
+                _target.PresetsInfo = EditorGUIUtility.Load("Detail Objects Layer/Default Presets Info.asset") as DetailObjectLayerPresetsInfo;
+
+                if (_target.PresetsInfo.Presets.Count == 0)
+                {
+                    _target.PresetsInfo.Presets.Add(new DetailObjectBrush());
+                }
+            }
+
+            var targetProperty = new SerializedObject(_target.PresetsInfo);
+            _presetList = new DetailObjectPresetList(targetProperty, targetProperty.FindProperty("Presets"), _target);
         }
 
         void OnSceneGUI()
