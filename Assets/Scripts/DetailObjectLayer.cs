@@ -52,6 +52,11 @@ namespace Grass
             _circles = new List<DistributedCircleGenerator.Circle>();
 
             Grid = new WorldSpaceCircleGrid(_gridSize, _gridSize, _size);
+
+            if (Brushes.Count == 0)
+            {
+                Brushes.Add(new DetailObjectBrush());
+            }
         }
 
         public bool TryAddCircle(DistributedCircleGenerator.Circle circle, float spacing)
@@ -157,7 +162,7 @@ namespace Grass
         {
             var height = Terrain.activeTerrain.SampleHeight(target.Position);
             target.Position.y = height;// +instance.GetComponentInChildren<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;
-            
+
             instance.transform.position = target.Position;
 
             if (ActiveBrush.SnapToNormals)

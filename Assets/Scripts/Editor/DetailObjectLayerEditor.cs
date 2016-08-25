@@ -73,9 +73,6 @@ namespace Grass
         private readonly SerializedProperty _targetProperty;
         private readonly DetailObjectLayer _detailObjectLayer;
 
-        private SerializedProperty _activeBrush;
-        private SerializedProperty _activeBrushIndex;
-
         private GUIStyle _activeBrushStyle;
         private GUIStyle _removeButtonStyle;
 
@@ -84,12 +81,6 @@ namespace Grass
             _targetObject = targetObject;
             _targetProperty = targetProperty;
             _detailObjectLayer = detailObjectLayer;
-
-            _activeBrush = _targetObject.FindProperty("ActiveBrush");
-
-
-            //_activeBrushStyle = new GUIStyle(GUI.skin.);
-            //_activeBrushIndex = _targetObject.FindProperty("ActiveBrushIndex");
         }
 
         public void OnInspectorGUI()
@@ -109,9 +100,6 @@ namespace Grass
             }
 
             _targetObject.Update();
-
-            //var activeBrushProperty = _targetProperty.GetArrayElementAtIndex(_activeBrushIndex.intValue);
-            //EditorGUILayout.PropertyField(_activeBrush, includeChildren: true);
 
             for (var i = 0; i < _targetProperty.arraySize; i++)
             {
@@ -135,17 +123,7 @@ namespace Grass
 
                     GUILayout.Space(10);
 
-                    //using (new EditorGUILayout.VerticalScope())
-                    {
-                        EditorGUILayout.PropertyField(element, includeChildren: true);
-
-                        //if (GUILayout.Button("Duplicate"))
-                        //{
-                        //    _detailObjectLayer.DuplicatePreset(i);
-
-                        //    return;
-                        //}
-                    }
+                    EditorGUILayout.PropertyField(element, includeChildren: true);
 
                     GUILayout.Space(10);
 
