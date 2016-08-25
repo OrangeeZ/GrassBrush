@@ -9,7 +9,7 @@ namespace Grass
     {
         public WorldSpaceCircleGrid Grid { get; private set; }
 
-        public DetailObjectBrush ActiveBrush;
+        public DetailObjectBrush ActiveBrush { get { return Brushes[ActiveBrushIndex]; } }
         public List<DetailObjectBrush> Brushes;
         public int ActiveBrushIndex = 0;
 
@@ -87,7 +87,7 @@ namespace Grass
 
         public void SetPresetActive(int presetIndex)
         {
-            ActiveBrush = Brushes[presetIndex].Copy();
+            ActiveBrushIndex = presetIndex;// Brushes[presetIndex];//.Copy();
         }
 
         public void RemovePreset(int presetIndex)
@@ -95,9 +95,10 @@ namespace Grass
             Brushes.RemoveAt(presetIndex);
         }
 
-        public void AddActivePreset()
+        public void DuplicatePreset(int presetIndex)
         {
-            Brushes.Add(ActiveBrush.Copy());
+            Brushes.Add(Brushes[presetIndex].Copy());
+            SetPresetActive(Brushes.Count - 1);
         }
 
         [ContextMenu("Save")]

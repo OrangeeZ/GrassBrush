@@ -74,6 +74,10 @@ namespace Grass
         private readonly DetailObjectLayer _detailObjectLayer;
 
         private SerializedProperty _activeBrush;
+        private SerializedProperty _activeBrushIndex;
+
+        private GUIStyle _activeBrushStyle;
+        private GUIStyle _removeButtonStyle;
 
         public DetailObjectPresetList(SerializedObject targetObject, SerializedProperty targetProperty, DetailObjectLayer detailObjectLayer)
         {
@@ -82,42 +86,73 @@ namespace Grass
             _detailObjectLayer = detailObjectLayer;
 
             _activeBrush = _targetObject.FindProperty("ActiveBrush");
+
+
+            //_activeBrushStyle = new GUIStyle(GUI.skin.);
+            //_activeBrushIndex = _targetObject.FindProperty("ActiveBrushIndex");
         }
 
         public void OnInspectorGUI()
         {
+            if (_activeBrushStyle == null)
+            {
+                _activeBrushStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = Color.green }
+                };
+
+                _removeButtonStyle = new GUIStyle(_activeBrushStyle)
+                {
+                    normal = { textColor = Color.red }
+                };
+            }
+
             _targetObject.Update();
 
-            EditorGUILayout.PropertyField(_activeBrush, includeChildren: true);
-
-            if (GUILayout.Button("Add active preset"))
-            {
-                _detailObjectLayer.AddActivePreset();
-
-                return;
-            }
+            //var activeBrushProperty = _targetProperty.GetArrayElementAtIndex(_activeBrushIndex.intValue);
+            //EditorGUILayout.PropertyField(_activeBrush, includeChildren: true);
 
             for (var i = 0; i < _targetProperty.arraySize; i++)
             {
                 var element = _targetProperty.GetArrayElementAtIndex(i);
 
-                using (var horizontalScope = new EditorGUILayout.HorizontalScope())
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("A", GUILayout.Width(20)))
+                    var isCurrentBrushActive = _detailObjectLayer.ActiveBrushIndex == i;
+
+                    var style = isCurrentBrushActive ? _activeBrushStyle : GUI.skin.button;
+
+                    if (GUILayout.Button(new GUIContent("A", "Activate"), style, GUILayout.Width(20)))
                     {
                         _detailObjectLayer.SetPresetActive(i);
                     }
 
+                    if (GUILayout.Button(new GUIContent("D", "Duplicate"), GUILayout.Width(20)))
+                    {
+                        _detailObjectLayer.DuplicatePreset(i);
+                    }
+
                     GUILayout.Space(10);
 
-                    EditorGUILayout.PropertyField(element, includeChildren: true);
+                    //using (new EditorGUILayout.VerticalScope())
+                    {
+                        EditorGUILayout.PropertyField(element, includeChildren: true);
+
+                        //if (GUILayout.Button("Duplicate"))
+                        //{
+                        //    _detailObjectLayer.DuplicatePreset(i);
+
+                        //    return;
+                        //}
+                    }
 
                     GUILayout.Space(10);
 
-                    if (GUILayout.Button("X", GUILayout.Width(20)))
+                    if (GUILayout.Button(new GUIContent("X", "Remove"), _removeButtonStyle, GUILayout.Width(20)))
                     {
                         _detailObjectLayer.RemovePreset(i);
-                        return;
+                        break;
                     }
                 }
             }
