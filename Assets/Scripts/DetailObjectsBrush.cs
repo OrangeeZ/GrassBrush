@@ -4,10 +4,10 @@ using UnityEngine;
 using System.Collections;
 using Random = UnityEngine.Random;
 
-namespace Grass
+namespace BO.Client.Graphics.DetailObjects
 {
     [Serializable]
-    public class DetailObjectBrush
+    public class DetailObjectsBrush
     {
         public string Name;
 
@@ -21,7 +21,7 @@ namespace Grass
         public float Radius;
 
         [SerializeField]
-        private DetailPreset[] _prefabs;
+        private DetailObject[] _prefabs;
 
         [SerializeField]
         private float _spacing;
@@ -46,7 +46,7 @@ namespace Grass
         private Color32 _toColor = Color.white;
 
         [ContextMenu("Draw")]
-        public void Draw(DetailObjectLayer detailObjectLayer)
+        public void Draw(DetailObjectsLayer detailObjectsLayer)
         {
             _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
@@ -68,14 +68,14 @@ namespace Grass
 
                 each.Color = Color32.Lerp(_fromColor, _toColor, Random.Range(0, 1f));
 
-                if (!detailObjectLayer.TryAddCircle(each, _spacing))
+                if (!detailObjectsLayer.TryAddCircle(each, _spacing))
                 {
                     //continue;
                 }
             }
         }
 
-        public void Erase(DetailObjectLayer detailObjectLayer)
+        public void Erase(DetailObjectsLayer detailObjectsLayer)
         {
             _distributedCircleGenerator = _distributedCircleGenerator ?? new DistributedCircleGenerator();
 
@@ -87,15 +87,15 @@ namespace Grass
                 var each = _distributedCircleGenerator.GetCircles()[i];
                 var randomPrefab = _prefabs[Random.Range(0, _prefabs.Length)];
 
-                detailObjectLayer.Erase(each.Position, randomPrefab.Radius);
+                detailObjectsLayer.Erase(each.Position, randomPrefab.Radius);
             }
 
-            detailObjectLayer.OnEraseFinish();
+            detailObjectsLayer.OnEraseFinish();
         }
 
-        public DetailObjectBrush Copy()
+        public DetailObjectsBrush Copy()
         {
-            return MemberwiseClone() as DetailObjectBrush;
+            return MemberwiseClone() as DetailObjectsBrush;
         }
     }
 }

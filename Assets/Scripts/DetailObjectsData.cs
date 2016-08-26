@@ -3,18 +3,21 @@ using System.Linq;
 using UnityEngine;
 using System.Collections;
 
-public class DetailObjectsData : ScriptableObject
+namespace BO.Client.Graphics.DetailObjects
 {
-    [SerializeField]
-    private List<DistributedCircleGenerator.Circle> _detailObjects;
-
-    public IList<DistributedCircleGenerator.Circle> GetDetailObjects()
+    public class DetailObjectsData : ScriptableObject
     {
-        return _detailObjects;
-    }
+        [SerializeField]
+        private List<DistributedCircleGenerator.Circle> _detailObjects;
 
-    public void SetDetailObjects(IList<DistributedCircleGenerator.Circle> detailObjects)
-    {
-        _detailObjects = detailObjects.ToList();
+        public IList<DistributedCircleGenerator.Circle> GetDetailObjects()
+        {
+            return _detailObjects;
+        }
+
+        public void SetDetailObjects(IList<DistributedCircleGenerator.Circle> detailObjects)
+        {
+            _detailObjects = detailObjects.ToList();
+        }
     }
 }

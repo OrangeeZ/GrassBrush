@@ -2,19 +2,19 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Grass
+namespace BO.Client.Graphics.DetailObjects
 {
     [ExecuteInEditMode]
-    public class DetailObjectLayer : MonoBehaviour
+    public class DetailObjectsLayer : MonoBehaviour
     {
         public WorldSpaceCircleGrid Grid { get; private set; }
 
-        public DetailObjectBrush ActiveBrush { get { return _presets[ActiveBrushIndex]; } }
+        public DetailObjectsBrush ActiveBrush { get { return _presets[ActiveBrushIndex]; } }
         public int ActiveBrushIndex = 0;
 
-        public DetailObjectLayerPresetsInfo PresetsInfo;
+        public DetailObjectsLayerPresetsInfo PresetsInfo;
 
-        private List<DetailObjectBrush> _presets { get { return PresetsInfo.Presets; } }
+        private List<DetailObjectsBrush> _presets { get { return PresetsInfo.Presets; } }
 
         [SerializeField]
         private Vector3 _size;
@@ -118,7 +118,7 @@ namespace Grass
 
         private void LoadInstance(DistributedCircleGenerator.Circle target)
         {
-            var instance = UnityEditor.PrefabUtility.InstantiatePrefab(target.Prefab) as DetailPreset;
+            var instance = UnityEditor.PrefabUtility.InstantiatePrefab(target.Prefab) as DetailObject;
 
             SnapTargetToTerrain(target, instance);
 
@@ -145,7 +145,7 @@ namespace Grass
             }
         }
 
-        private void SnapTargetToTerrain(DistributedCircleGenerator.Circle target, DetailPreset instance)
+        private void SnapTargetToTerrain(DistributedCircleGenerator.Circle target, DetailObject instance)
         {
             var height = Terrain.activeTerrain.SampleHeight(target.Position);
             target.Position.y = height;// +instance.GetComponentInChildren<MeshFilter>().sharedMesh.bounds.extents.y * target.Scale;

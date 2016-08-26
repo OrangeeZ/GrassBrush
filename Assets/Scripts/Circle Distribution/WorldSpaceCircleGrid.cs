@@ -4,117 +4,119 @@ using BO.Utilities;
 using UnityEngine;
 using System.Collections;
 
-public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerator.Circle>>
+namespace BO.Client.Graphics.DetailObjects
 {
-    public WorldSpaceCircleGrid(int resolutionX, int resolutionZ, Vector3 worldSize)
-        : base(resolutionX, resolutionZ, worldSize)
+    public class WorldSpaceCircleGrid : WorldSpaceGrid<List<DistributedCircleGenerator.Circle>>
     {
-    }
-
-    private DistributedCircleGenerator.Circle _circleToAdd;
-    private Vector3 _intersectionPosition;
-    private float _intersectionRadius;
-    private bool _circleIntersectionResult;
-    private Action<DistributedCircleGenerator.Circle> _circleCallback;
-
-    public void AddCircle(DistributedCircleGenerator.Circle circle)
-    {
-        _circleToAdd = circle;
-
-        ForEachInRadius(circle.Position, circle.Radius, OnTryAddCircle);
-    }
-
-    public bool Intersects(DistributedCircleGenerator.Circle circle, float spacing)
-    {
-        _circleIntersectionResult = false;
-
-        _intersectionPosition = circle.Position;
-        _intersectionRadius = circle.Radius + spacing;
-
-        ForEachInRadius(circle.Position, circle.Radius + spacing, OnCircleIntersection);
-
-        return _circleIntersectionResult;
-    }
-
-    private void OnCircleIntersection(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
-    {
-        if (_circleIntersectionResult)
+        public WorldSpaceCircleGrid(int resolutionX, int resolutionZ, Vector3 worldSize)
+            : base(resolutionX, resolutionZ, worldSize)
         {
-            return;
         }
 
-        var itemList = items[itemIndex];
+        private DistributedCircleGenerator.Circle _circleToAdd;
+        private Vector3 _intersectionPosition;
+        private float _intersectionRadius;
+        private bool _circleIntersectionResult;
+        private Action<DistributedCircleGenerator.Circle> _circleCallback;
 
-        if (itemList == null)
+        public void AddCircle(DistributedCircleGenerator.Circle circle)
         {
-            return;
+            _circleToAdd = circle;
+
+            ForEachInRadius(circle.Position, circle.Radius, OnTryAddCircle);
         }
 
-        for (var j = 0; j < itemList.Count; j++)
+        public bool Intersects(DistributedCircleGenerator.Circle circle, float spacing)
         {
-            _circleIntersectionResult = _circleIntersectionResult || IntersectCircles(itemList[j]);
-        }
-    }
+            _circleIntersectionResult = false;
 
-    private bool IntersectCircles(DistributedCircleGenerator.Circle b)
-    {
-        var delta = _intersectionPosition - b.Position;
-        delta.y = 0;
+            _intersectionPosition = circle.Position;
+            _intersectionRadius = circle.Radius + spacing;
 
-        return delta.sqrMagnitude < Mathf.Pow(_intersectionRadius + b.Radius, 2);
-    }
+            ForEachInRadius(circle.Position, circle.Radius + spacing, OnCircleIntersection);
 
-    private void OnTryAddCircle(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
-    {
-        items[itemIndex] = items[itemIndex] ?? new List<DistributedCircleGenerator.Circle>();
-        items[itemIndex].Add(_circleToAdd);
-    }
-
-    public void RemoveCircle(Vector3 position, float radius, Action<DistributedCircleGenerator.Circle> circleCallback)
-    {
-        _intersectionPosition = position;
-        _intersectionRadius = radius;
-        _circleCallback = circleCallback;
-
-        ForEachInRadius(position, radius, OnCircleRemove);
-    }
-
-    private void OnCircleRemove(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
-    {
-        var itemList = items[itemIndex];
-        if (itemList == null)
-        {
-            return;
+            return _circleIntersectionResult;
         }
 
-        for (var i = 0; i < itemList.Count; i++)
+        private void OnCircleIntersection(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
         {
-            if (IntersectCircles(itemList[i]))
+            if (_circleIntersectionResult)
             {
-                _circleCallback(itemList[i]);
+                return;
+            }
 
-                itemList.RemoveAt(i);
+            var itemList = items[itemIndex];
 
-                i = -1;
+            if (itemList == null)
+            {
+                return;
+            }
+
+            for (var j = 0; j < itemList.Count; j++)
+            {
+                _circleIntersectionResult = _circleIntersectionResult || IntersectCircles(itemList[j]);
             }
         }
 
-        //itemList.RemoveAll(_ => IntersectCircles(Circles[itemList[_]]));
-    }
-
-    public void OnDrawGizmos()
-    {
-        var items = GetItemsRaw();
-        for (var i = 0; i < items.Length; i++)
+        private bool IntersectCircles(DistributedCircleGenerator.Circle b)
         {
-            if (items[i] == null)
+            var delta = _intersectionPosition - b.Position;
+            delta.y = 0;
+
+            return delta.sqrMagnitude < Mathf.Pow(_intersectionRadius + b.Radius, 2);
+        }
+
+        private void OnTryAddCircle(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
+        {
+            items[itemIndex] = items[itemIndex] ?? new List<DistributedCircleGenerator.Circle>();
+            items[itemIndex].Add(_circleToAdd);
+        }
+
+        public void RemoveCircle(Vector3 position, float radius,
+                                 Action<DistributedCircleGenerator.Circle> circleCallback)
+        {
+            _intersectionPosition = position;
+            _intersectionRadius = radius;
+            _circleCallback = circleCallback;
+
+            ForEachInRadius(position, radius, OnCircleRemove);
+        }
+
+        private void OnCircleRemove(List<DistributedCircleGenerator.Circle>[] items, int x, int z, int itemIndex)
+        {
+            var itemList = items[itemIndex];
+            if (itemList == null)
             {
-                continue;
+                return;
             }
 
-            for (var j = 0; j < items[i].Count; j++)
+            for (var i = 0; i < itemList.Count; i++)
             {
-                Gizmos.DrawSphere(items[i][j].Position, items[i][j].Radius);
+                if (IntersectCircles(itemList[i]))
+                {
+                    _circleCallback(itemList[i]);
+
+                    itemList.RemoveAt(i);
+
+                    i = -1;
+                }
+            }
+        }
+
+        public void OnDrawGizmos()
+        {
+            var items = GetItemsRaw();
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (items[i] == null)
+                {
+                    continue;
+                }
+
+                for (var j = 0; j < items[i].Count; j++)
+                {
+                    Gizmos.DrawSphere(items[i][j].Position, items[i][j].Radius);
+                }
             }
         }
     }

@@ -1,26 +1,34 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace Grass
+namespace BO.Client.Graphics.DetailObjects
 {
-    [CustomEditor(typeof(DetailObjectLayer))]
-    public class DetailObjectLayerEditor : Editor
+    [CustomEditor(typeof(DetailObjectsLayer))]
+    public class DetailObjectsLayerEditor : Editor
     {
-        private DetailObjectLayer _target;
+        private DetailObjectsLayer _target;
 
         private DetailObjectPresetList _presetList;
 
         void OnEnable()
         {
-            _target = target as DetailObjectLayer;
+            _target = target as DetailObjectsLayer;
 
             if (_target.PresetsInfo == null)
             {
-                _target.PresetsInfo = EditorGUIUtility.Load("Detail Objects Layer/Default Presets Info.asset") as DetailObjectLayerPresetsInfo;
+                var presetsInfo = EditorGUIUtility.Load("Detail Objects Layer/Default Presets Info.asset") as DetailObjectsLayerPresetsInfo;
+
+                if (presetsInfo == null)
+                {
+                    presetsInfo = CreateInstance<DetailObjectsLayerPresetsInfo>();
+                    AssetDatabase.CreateAsset(presetsInfo, "Assets/Editor Default Resources/Detail Objects Layer/Default Presets Info.asset");
+                }
+
+                _target.PresetsInfo = presetsInfo;
 
                 if (_target.PresetsInfo.Presets.Count == 0)
                 {
-                    _target.PresetsInfo.Presets.Add(new DetailObjectBrush());
+                    _target.PresetsInfo.Presets.Add(new DetailObjectsBrush());
                 }
             }
 
@@ -79,19 +87,19 @@ namespace Grass
     {
         public int ActiveBrushIndex;
 
-        public DetailObjectBrush ActiveBrush { get; private set; }
+        public DetailObjectsBrush ActiveBrush { get; private set; }
         private readonly SerializedObject _targetObject;
         private readonly SerializedProperty _targetProperty;
-        private readonly DetailObjectLayer _detailObjectLayer;
+        private readonly DetailObjectsLayer _detailObjectsLayer;
 
         private GUIStyle _activeBrushStyle;
         private GUIStyle _removeButtonStyle;
 
-        public DetailObjectPresetList(SerializedObject targetObject, SerializedProperty targetProperty, DetailObjectLayer detailObjectLayer)
+        public DetailObjectPresetList(SerializedObject targetObject, SerializedProperty targetProperty, DetailObjectsLayer detailObjectsLayer)
         {
             _targetObject = targetObject;
             _targetProperty = targetProperty;
-            _detailObjectLayer = detailObjectLayer;
+            _detailObjectsLayer = detailObjectsLayer;
         }
 
         public void OnInspectorGUI()
@@ -118,18 +126,18 @@ namespace Grass
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    var isCurrentBrushActive = _detailObjectLayer.ActiveBrushIndex == i;
+                    var isCurrentBrushActive = _detailObjectsLayer.ActiveBrushIndex == i;
 
                     var style = isCurrentBrushActive ? _activeBrushStyle : GUI.skin.button;
 
                     if (GUILayout.Button(new GUIContent("A", "Activate"), style, GUILayout.Width(20)))
                     {
-                        _detailObjectLayer.SetPresetActive(i);
+                        _detailObjectsLayer.SetPresetActive(i);
                     }
 
                     if (GUILayout.Button(new GUIContent("D", "Duplicate"), GUILayout.Width(20)))
                     {
-                        _detailObjectLayer.DuplicatePreset(i);
+                        _detailObjectsLayer.DuplicatePreset(i);
                     }
 
                     GUILayout.Space(10);
@@ -140,7 +148,7 @@ namespace Grass
 
                     if (GUILayout.Button(new GUIContent("X", "Remove"), _removeButtonStyle, GUILayout.Width(20)))
                     {
-                        _detailObjectLayer.RemovePreset(i);
+                        _detailObjectsLayer.RemovePreset(i);
                         break;
                     }
                 }
