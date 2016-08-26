@@ -108,6 +108,7 @@ namespace BO.Client.Graphics.DetailObjects
 
         private GUIStyle _activeBrushStyle;
         private GUIStyle _removeButtonStyle;
+        private GUIStyle _headerStyle;
 
         public DetailObjectPresetList(SerializedObject targetObject, SerializedProperty targetProperty, DetailObjectsLayer detailObjectsLayer)
         {
@@ -118,19 +119,10 @@ namespace BO.Client.Graphics.DetailObjects
 
         public void OnInspectorGUI()
         {
-            if (_activeBrushStyle == null)
-            {
-                _activeBrushStyle = new GUIStyle(GUI.skin.button)
-                {
-                    fontStyle = FontStyle.Bold,
-                    normal = { textColor = Color.green }
-                };
+            CheckStyles();
 
-                _removeButtonStyle = new GUIStyle(_activeBrushStyle)
-                {
-                    normal = { textColor = Color.red }
-                };
-            }
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Presets", _headerStyle);
 
             _targetObject.Update();
 
@@ -169,6 +161,31 @@ namespace BO.Client.Graphics.DetailObjects
             }
 
             _targetObject.ApplyModifiedProperties();
+        }
+
+        private void CheckStyles()
+        {
+            if (_activeBrushStyle != null)
+            {
+                return;
+            }
+
+            _activeBrushStyle = new GUIStyle(GUI.skin.button)
+            {
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.green }
+            };
+
+            _removeButtonStyle = new GUIStyle(_activeBrushStyle)
+            {
+                normal = { textColor = Color.red }
+            };
+
+            _headerStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter
+            };
         }
     }
 }
