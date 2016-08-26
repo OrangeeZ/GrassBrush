@@ -120,7 +120,7 @@ namespace BO.Client.Graphics.DetailObjects
         }
 
         [ContextMenu("Save")]
-        private void Save()
+        public void Save()
         {
             var scene = gameObject.scene;
             var path = scene.path.Replace(".unity", "_DetailObjectsData.asset");

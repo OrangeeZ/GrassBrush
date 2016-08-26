@@ -89,6 +89,11 @@ namespace BO.Client.Graphics.DetailObjects
             {
                 _target.ManualEditMode = !_target.ManualEditMode;
             }
+
+            if (GUILayout.Button("Save"))
+            {
+                _target.Save();
+            }
         }
     }
 

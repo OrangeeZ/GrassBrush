@@ -20,12 +20,15 @@ namespace BO.Client.Graphics.DetailObjects
 
             public Color32 Color;
 
-            [NonSerialized] public DetailObject Instance;
+            [NonSerialized]
+            public DetailObject Instance;
         }
 
-        [SerializeField] private int _pointsPerUnit = 1;
+        [SerializeField]
+        private int _pointsPerUnit = 1;
 
-        [SerializeField] private float _radius = 5f;
+        [SerializeField]
+        private float _radius = 5f;
 
         private List<Circle> _circles = new List<Circle>();
 
@@ -44,15 +47,15 @@ namespace BO.Client.Graphics.DetailObjects
         {
             _circles.Clear();
 
-            var area = Mathf.Pow(_radius, 2)*Mathf.PI;
-            var pointCount = area*_pointsPerUnit*density;
+            var area = Mathf.Pow(_radius, 2) * Mathf.PI;
+            var pointCount = area * _pointsPerUnit * density;
 
             for (var i = 0; i < pointCount; i++)
             {
-                var point = Random.insideUnitCircle*_radius;
+                var point = Random.insideUnitCircle * _radius;
                 var worldPoint = new Vector3(point.x, 0, point.y);
 
-                _circles.Add(new Circle {Position = worldPoint + position, Radius = 0f});
+                _circles.Add(new Circle { Position = worldPoint + position, Radius = 0f });
             }
         }
 
