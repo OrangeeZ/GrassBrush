@@ -14,6 +14,20 @@ namespace BO.Client.Graphics.DetailObjects
 
         public DetailObjectsLayerPresetsInfo PresetsInfo;
 
+        public bool ManualEditMode
+        {
+            get { return _manualEditMode; }
+            set
+            {
+                _manualEditMode = value;
+
+                for (var i = 0; i < _circles.Count; i++)
+                {
+                    _circles[i].Instance.gameObject.hideFlags = value ? HideFlags.None : HideFlags.HideAndDontSave;
+                }
+            }
+        }
+
         private List<DetailObjectsBrush> _presets { get { return PresetsInfo.Presets; } }
 
         [SerializeField]
@@ -27,6 +41,7 @@ namespace BO.Client.Graphics.DetailObjects
         private List<DistributedCircleGenerator.Circle> _circles;
 
         private DetailObjectsData _detailObjectsData;
+        private bool _manualEditMode;
 
         private void OnEnable()
         {
@@ -132,7 +147,7 @@ namespace BO.Client.Graphics.DetailObjects
 
             target.Instance = instance;
         }
-        
+
         private void PlaceInstance(DistributedCircleGenerator.Circle target)
         {
             LoadInstance(target);
@@ -157,7 +172,7 @@ namespace BO.Client.Graphics.DetailObjects
         [ContextMenu("Load")]
         private void Load()
         {
-//#if UNTIY_EDITOR
+            //#if UNTIY_EDITOR
             var scene = gameObject.scene;
             var path = scene.path.Replace(".unity", "_DetailObjectsData.asset");
 
@@ -176,7 +191,7 @@ namespace BO.Client.Graphics.DetailObjects
 
                 LoadInstance(_circles[i]);
             }
-//#endif
+            //#endif
         }
 
         void OnDrawGizmos()

@@ -80,6 +80,15 @@ namespace BO.Client.Graphics.DetailObjects
         public override void OnInspectorGUI()
         {
             _presetList.OnInspectorGUI();
+
+            EditorGUILayout.Space();
+
+            var isManualEditModeActive = _target.ManualEditMode;
+
+            if (GUILayout.Button(isManualEditModeActive ? "Disable manual edit mode" : "Enable manual edit mode"))
+            {
+                _target.ManualEditMode = !_target.ManualEditMode;
+            }
         }
     }
 
